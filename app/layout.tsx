@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { person } from "@/content/site";
@@ -23,9 +23,18 @@ const archivo = localFont({
   fallback: ["system-ui", "sans-serif"],
 });
 
+const jetbrains = localFont({
+  src: "./fonts/jetbrains-mono-latin.woff2",
+  weight: "400 500",
+  style: "normal",
+  variable: "--font-jetbrains",
+  display: "swap",
+  fallback: ["ui-monospace", "Menlo", "monospace"],
+});
+
 const title = `${person.name} | AI Automation Engineer, HR Analyst, Co-founder of CJ Studios`;
 const description =
-  "Send the problem, get back a system. AI automation, HR analytics and growth marketing by Abhiram Anil, co-founder of CJ Studios. Casework, method and a brief you can send in one line.";
+  "Send the problem, get back a system. AI automation, HR analytics and growth marketing by Abhiram Anil, co-founder of CJ Studios. Five cases, one method, and a brief you can send in one line.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -38,21 +47,12 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: person.name, url: siteUrl }],
   creator: person.name,
-  openGraph: {
-    type: "website",
-    url: siteUrl,
-    siteName: person.name,
-    title,
-    description,
-    locale: "en_AU",
-  },
+  openGraph: { type: "website", url: siteUrl, siteName: person.name, title, description, locale: "en_AU" },
   twitter: { card: "summary_large_image", title, description },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
 };
 
-export const viewport = { width: "device-width", initialScale: 1, viewportFit: "cover" as const };
-
-const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t)}}catch(e){}})();`;
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#0b0b0b" };
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -75,13 +75,9 @@ const jsonLd = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${gloock.variable} ${archivo.variable}`}>
+    <html lang="en" className={`${gloock.variable} ${archivo.variable} ${jetbrains.variable}`}>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-        <noscript>
-          <style>{`[data-reveal] .hl{background-size:100% 86%;color:var(--mark-ink)}`}</style>
-        </noscript>
       </head>
       <body className="min-h-dvh bg-paper text-ink antialiased">
         <a
