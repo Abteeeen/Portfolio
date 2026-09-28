@@ -2,7 +2,7 @@
 
 **Send the problem. Get back a system.**
 
-The personal site of Abhiram Anil: AI automation engineer, HR analyst, growth marketer and co-founder of [CJ Studios](https://www.cjstudios.tech/). It is built as a film, not a document: twelve screens, about 220 words, one signal colour, a WebGL canvas of the real workflow, and a brief you can send in one line.
+The personal site of Abhiram Anil: AI automation engineer, HR analyst, growth marketer and co-founder of [CJ Studios](https://www.cjstudios.tech/). It is built as a film, not a document: it opens on a pinned 3D scene of one working day at the desk, then runs through the casework, a WebGL canvas of the real workflow, and a brief you can send in one line. One signal colour throughout.
 
 Built with Next.js 16 (App Router), React 19, Tailwind CSS 4, Three.js, GSAP and Lenis. No analytics, no tracking scripts, no database. Fonts are self-hosted.
 
@@ -25,7 +25,7 @@ npm start          # serve the build
 | # | Screen | What happens |
 | --- | --- | --- |
 | 00 | Power on | Telemetry lines, 1.8 s, skippable, once per session |
-| 01 | Hero | Letters assemble, highlighter draws, the Canvas glides behind |
+| 01 | Night desk | A pinned 3D film of one day. Abhiram at his desk at night: the day's AI updates fly to a pinboard, most fall off, the keepers are tied with yellow thread to client problems, and results get pinned over them. Four chapter captions on the left |
 | 02 | Running now | Three numbers count up, each with a source |
 | 03–07 | Casework | Five full-bleed screens: client, one phrase from the brief, one line of result, one real screen in a device |
 | 08 | The system | The Canvas pinned; scroll drives the camera, hover names the case |
@@ -40,8 +40,9 @@ Persistent: the sigil, the nav, the sound toggle (a low hum, off by default), th
 | What | Where |
 | --- | --- |
 | Case studies, roles, contact details | `content/site.ts` |
-| Every word of the film: boot lines, hero, numbers, phrases, method, ending, ticker, canvas nodes | `content/film.ts` |
+| Every word of the film: boot lines, hero, chapters, desk cards, numbers, phrases, method, ending, ticker, canvas nodes | `content/film.ts` |
 | Screens | `components/film/*.tsx` |
+| Night desk hero (Three.js) | `components/film/NightDesk.tsx`, scene in `components/film/night/` |
 | The Canvas (Three.js) | `components/film/CanvasScene.tsx` |
 | Kinetic letters, highlighter, fade-ins | `components/film/Kinetic.tsx`, `Highlight.tsx`, `Appear.tsx` |
 | Boot, HUD, smooth scroll | `components/film/Boot.tsx`, `Hud.tsx`, `Smooth.tsx` |
@@ -49,6 +50,23 @@ Persistent: the sigil, the nav, the sound toggle (a low hum, off by default), th
 | Tokens, grain, highlighter, device frames | `app/globals.css` |
 | Proof images | `public/proof/` |
 | Fonts (Gloock, Archivo, JetBrains Mono) | `app/fonts/` |
+
+## The Night desk hero
+
+`components/film/NightDesk.tsx` pins a stage for about seven screens of scroll and drives the scene in `components/film/night/` with scroll progress from 0 to 1:
+
+| Progress | Chapter | In the scene |
+| --- | --- | --- |
+| 0 | Opening | Wide shot of the room at night |
+| 0.12–0.29 | 01 Every day | Over the shoulder, the feed on the laptop |
+| 0.31–0.49 | 02 Tested | Cards fly to the board, rejects fall, keepers turn yellow |
+| 0.51–0.69 | 03 Applied | Yellow thread ties keepers to client problems |
+| 0.71–0.89 | 04 Proven | Result cards get pinned over the problems |
+| 0.93–1 | Close | Wide shot, the loop starts again tomorrow |
+
+- The words on the cards and screens are `night` in `content/film.ts`; the captions are `hero` and `story`.
+- `night/engine.js` is the renderer: print-style shading snapped to three inks, ink outlines drawn from depth and normals, grain, and the camera path. `night/figure.js` builds the person, `night/props.js` the furniture, `night/scene.js` the room and the timeline.
+- `public/hero/night-desk.jpg` and `night-desk-portrait.jpg` show until the first frame renders, and stay if WebGL is not available. If the opening shot changes, capture new ones from the canvas at scroll 0 (1600 × 1000, and 390 × 844 at 2×).
 
 ## Proof images
 
@@ -86,7 +104,7 @@ A visitor types one line about their problem, or pastes a role. The site answers
 
 ## Performance and accessibility
 
-- Three.js loads on the client after first paint; phones get fewer cards, no transmission and pixel ratio 1.
+- Three.js loads on the client after first paint. The Night desk renders only while it is on screen, caps the pixel ratio, and uses smaller shadow maps on phones and low-core machines; the Canvas gives phones fewer cards, no transmission and pixel ratio 1.
 - Everything is visible at rest under `prefers-reduced-motion`: no letter flight, no boot delay, no glide.
 - The boot never gates the page: it ends by itself, any click or key skips it, and it is skipped for the rest of the session.
 - Sound is off until the visitor turns it on.

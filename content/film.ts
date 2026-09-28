@@ -75,12 +75,66 @@ export const boot: [string, string][] = [
 ];
 
 export const hero = {
+  kicker: "AI automation · People analytics · Growth marketing",
   line1: "Send the problem.",
   line2: "Get back a",
   word: "system.",
-  sub: "AI automation, people analytics, growth marketing. Co-founder of CJ Studios. Everything on this page is running right now.",
+  sub: "I read the day's AI news, test what's new, and put the parts that work into systems for real businesses. Scroll through one day.",
   primary: "Write me a brief",
   secondary: "Casework",
+};
+
+/**
+ * Screen 01, the Night desk film. The opening is `hero`; these are the four chapters the
+ * camera moves through while the page is pinned, and the closing line.
+ */
+export const story = {
+  chapters: [
+    { n: "01", kicker: "Every day", title: "Something new ships.", line: "New models, nodes, APIs and launches, most mornings. I read them the day they land." },
+    { n: "02", kicker: "Tested", title: "Most of it doesn't make the cut.", line: "Each update gets tried against a real client problem. The few that work are kept." },
+    { n: "03", kicker: "Applied", title: "The keepers go to work.", line: "They get wired into client systems: tender alerts, WhatsApp leads, hiring, reporting." },
+    { n: "04", kicker: "Proven", title: "Results, on record.", line: "A tender digest every morning. Leads on WhatsApp. A source for every enquiry." },
+  ],
+  close: "Tomorrow, the same loop",
+};
+
+export type NightUpdate = { time: string; src: string; t: string; keep: boolean; to?: number };
+
+/**
+ * What the scene shows on its cards and screens. Updates marked `keep` turn yellow and get
+ * tied (`to`) to one of the problems; each problem gets its result pinned over it. Client
+ * names follow the naming rules in site.ts.
+ */
+export const night: {
+  updates: NightUpdate[];
+  problems: { who: string; q: string; r: string }[];
+  systems: { n: string; m: string; t: string }[];
+} = {
+  updates: [
+    { time: "06:10", src: "LAUNCH", t: "Agent framework no. 41", keep: false },
+    { time: "06:42", src: "N8N", t: "Agent node: new tools", keep: true, to: 0 },
+    { time: "07:15", src: "THREAD", t: "500 prompts you need", keep: false },
+    { time: "08:03", src: "TOOL", t: "AI logo generator v3", keep: false },
+    { time: "09:20", src: "BETA", t: "Waitlist-only browser agent", keep: false },
+    { time: "10:05", src: "CLAUDE", t: "New model, longer context", keep: true, to: 1 },
+    { time: "12:30", src: "META ADS", t: "Click-to-WhatsApp update", keep: true, to: 2 },
+    { time: "15:48", src: "APP", t: "Another AI chat app", keep: false },
+    { time: "19:12", src: "GA4", t: "Attribution changes", keep: true, to: 3 },
+  ],
+  problems: [
+    { who: "QLD CONTRACTOR", q: "We miss tenders.", r: "A tender digest in Slack every morning" },
+    { who: "CODEVANTAGE", q: "People data lives in five spreadsheets.", r: "A scored shortlist and a weekly dashboard" },
+    { who: "KERALA WORKSHOP", q: "Nobody calls.", r: "Leads now arrive as WhatsApp chats" },
+    { who: "FIVE STAR ACADEMY", q: "Which ad worked?", r: "Every enquiry has a source" },
+  ],
+  systems: [
+    { n: "Tender Radar", m: "3 new matches → Slack", t: "21:14" },
+    { n: "Meta Ads agent", m: "Five Star cost per lead ↓ 12%", t: "21:09" },
+    { n: "Resume ATS", m: "4 applicants scored, top fit 87", t: "21:02" },
+    { n: "Blog agent", m: "draft published → Notion", t: "20:58" },
+    { n: "End-of-day report", m: "posted to Slack, 6 tasks closed", t: "20:41" },
+    { n: "Reel production", m: "concept → clip prompt", t: "19:30" },
+  ],
 };
 
 /** Screen 02. Change these to your own numbers; each carries its source. */

@@ -1,7 +1,7 @@
 import { Boot } from "@/components/film/Boot";
 import { Smooth } from "@/components/film/Smooth";
 import { Hud } from "@/components/film/Hud";
-import { Hero } from "@/components/film/Hero";
+import { NightDesk } from "@/components/film/NightDesk";
 import { Running } from "@/components/film/Running";
 import { Casework } from "@/components/film/Casework";
 import { SystemScreen } from "@/components/film/SystemScreen";
@@ -17,7 +17,7 @@ export default function Home() {
       <Hud />
       <div className="grain" aria-hidden="true" />
       <main id="main">
-        <Hero />
+        <NightDesk />
         <Running />
         <Casework />
         <SystemScreen />
