@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { person } from "@/content/site";
-import type { BriefAnswer, Mode } from "@/lib/match";
+import { matchBrief, type BriefAnswer, type Mode } from "@/lib/match";
 
 export function BriefForm() {
   const [mode, setMode] = useState<Mode>("brief");
@@ -17,16 +17,20 @@ export function BriefForm() {
     setError(null);
     setAnswer(null);
     try {
-      const r = await fetch("/api/brief", {
+      const r = await fetch("api/brief", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ text, mode }),
       });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data?.error ?? "Something went wrong.");
-      setAnswer(data as BriefAnswer);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      let data: { approach?: unknown; error?: unknown } | null = null;
+      try {
+        data = await r.json();
+      } catch {}
+      if (r.ok && data && typeof data.approach === "string") setAnswer(data as BriefAnswer);
+      else if (data && typeof data.error === "string" && r.status < 500) setError(data.error);
+      else setAnswer(matchBrief(text, mode)); // no usable server (static preview, offline): answer in the browser
+    } catch {
+      setAnswer(matchBrief(text, mode));
     } finally {
       setBusy(false);
     }
