@@ -50,14 +50,26 @@ Persistent: the sigil, the nav, the sound toggle (a low hum, off by default), th
 | Proof images | `public/proof/` |
 | Fonts (Gloock, Archivo, JetBrains Mono) | `app/fonts/` |
 
-## Adding the proof images
+## Proof images
 
-Each casework screen shows a device with either a real screenshot or a yellow placeholder that names what is missing. To fill one:
+Each casework screen shows a device with either a screenshot or a yellow placeholder that names what is missing. The five casework images are in place:
+
+| Case | File | Kind |
+| --- | --- | --- |
+| Five Star Training Academy | `proof/five-star-home.jpg` | Capture of the live site |
+| Tender Radar | `proof/tender-radar-slack.jpg` | Rendered Slack digest |
+| Eco Clean | `proof/eco-clean-whatsapp.jpg` | Rendered WhatsApp thread |
+| Codevantage | `proof/codevantage-people.jpg` | Rendered people dashboard |
+| NOT A BASIC | `proof/not-a-basic.jpg` | Capture of the homepage design |
+
+`proof/n8n-resume-ats.jpg` is a spare: the Resume ATS workflow canvas, same size as the dashboard. Swap it in on the Codevantage case if you would rather show the workflow than the report.
+
+To replace one:
 
 1. Drop the file in `public/proof/`.
 2. In `content/film.ts`, set `image: "/proof/your-file.jpg"` on that case.
 
-Specs: laptop 1600 × 1000, phone 1170 × 2532, tablet 1600 × 1200. The founder portrait goes in `founder.photo` (2000 × 2500 or larger, plain background); the site converts it to duotone.
+Specs: laptop 1600 × 1000, phone 1170 × 2532, tablet 1600 × 1200. The founder portrait is the one image still missing: set `founder.photo` in `content/film.ts` to a real photo (2000 × 2500 or larger, plain background); the site converts it to duotone.
 
 Client naming is controlled in `content/site.ts` (`client.public`). Anonymised clients show `client.anonymised`.
 

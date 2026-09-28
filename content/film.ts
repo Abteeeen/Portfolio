@@ -40,24 +40,28 @@ export const filmCases: Record<string, FilmCase> = {
     phrase: "We miss tenders",
     result: "A digest every morning, sorted by closing date.",
     device: "phone",
+    image: "/proof/tender-radar-slack.jpg",
     imageSpec: "Phone · the Slack digest in #tenders · 1170 × 2532",
   },
   "eco-clean-whatsapp-leads": {
     phrase: "nobody calls",
     result: "Now they WhatsApp.",
     device: "phone",
+    image: "/proof/eco-clean-whatsapp.jpg",
     imageSpec: "Phone · the WhatsApp thread · 1170 × 2532",
   },
   "codevantage-people": {
     phrase: "people data lives in five spreadsheets",
     result: "One dashboard, every week.",
     device: "laptop",
+    image: "/proof/codevantage-people.jpg",
     imageSpec: "Laptop · the people dashboard · 1600 × 1000",
   },
   "fine-jewellery-direct": {
     phrase: "not look like every other Shopify store",
     result: "Fine jewellery, direct.",
     device: "tablet",
+    image: "/proof/not-a-basic.jpg",
     imageSpec: "Tablet · the homepage · 1600 × 1200",
   },
 };
