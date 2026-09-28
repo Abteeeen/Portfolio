@@ -1,0 +1,11 @@
+{
+  "updated": "2026-09-28",
+  "heading": "Recently shipped",
+  "lines": [
+    { "date": "11 Sep", "text": "Cash in Transit course page live on Five Star's staging: eight modules wired, all page gates passing." },
+    { "date": "12 Sep", "text": "43 Five Star pages moved onto one shared layout panel. 10 KB of CSS removed from every route." },
+    { "date": "08 Sep", "text": "Five Star tag container rebuilt: Meta pixel fixed, enhanced conversions on, dead tags retired." },
+    { "date": "03 Sep", "text": "Measurement stack audit for Five Star: HubSpot pipeline, GA4 and GTM traced end to end." },
+    { "date": "28 Sep", "text": "This site, replacing the old 3D portfolio." }
+  ]
+}
