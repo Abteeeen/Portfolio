@@ -7,8 +7,9 @@
 import * as THREE from 'three';
 import { C, shadowSize, tone, glow, canvasTex, rr, wrap, FONT, Path, seg, smooth, lerp, mixInks, YELLOW_INKS, shadowed } from './engine.js';
 export { Stage, disposeScene, setFonts } from './engine.js';
+export { loadPerson } from './figure.js';
 import { inks, plant, deskLamp, laptop, officeChair, mug, bookStack, box, rod } from './props.js';
-import { seatedHuman, humanInks } from './figure.js';
+import { seatedPerson } from './figure.js';
 import { drawUpdateCard, drawProblemCard, drawResultCard, drawLabelCard, keysTexture } from './cards.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -58,7 +59,8 @@ function palmShape(h, lean, fronds, seed) {
   return new THREE.ShapeGeometry(shapes, 6);
 }
 
-export function buildNight({ updates: UPDATES, problems: PROBLEMS, systems: SYSTEMS }) {
+/** `person` is the body from loadPerson('/hero/person.glb'). */
+export function buildNight({ updates: UPDATES, problems: PROBLEMS, systems: SYSTEMS }, person) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(C.paper);
 
@@ -216,7 +218,7 @@ export function buildNight({ updates: UPDATES, problems: PROBLEMS, systems: SYST
 
   const chair = officeChair();
   scene.add(chair);
-  const fig = seatedHuman(humanInks(), { lean: 0.16, pitch: 0.32 });
+  const fig = seatedPerson(person);
   scene.add(fig);
   const head = fig.userData.head;
 
@@ -362,12 +364,12 @@ export function buildNight({ updates: UPDATES, problems: PROBLEMS, systems: SYST
   const path = new Path([
     { p: 0.0, pos: [-1.7, 1.64, 2.75], look: [0.12, 1.18, -0.6], fov: 40 },
     { p: 0.05, pos: [-1.56, 1.6, 2.55], look: [0.12, 1.16, -0.6], fov: 40 },
-    { p: 0.14, pos: [0.36, 1.29, 0.4], look: [-0.03, 0.87, -0.72], fov: 33 },
-    { p: 0.27, pos: [0.34, 1.28, 0.37], look: [-0.03, 0.87, -0.72], fov: 32 },
+    { p: 0.14, pos: [0.43, 1.4, 0.42], look: [-0.05, 0.83, -0.68], fov: 34 },
+    { p: 0.27, pos: [0.41, 1.39, 0.39], look: [-0.05, 0.83, -0.68], fov: 33 },
     { p: 0.34, pos: [-0.24, 1.69, 0.42], look: [-0.36, 1.65, -1.0], fov: 36 },
     { p: 0.47, pos: [-0.27, 1.68, 0.38], look: [-0.37, 1.65, -1.0], fov: 35 },
-    { p: 0.54, pos: [0.22, 1.52, 0.78], look: [0.08, 1.57, -1.0], fov: 44 },
-    { p: 0.67, pos: [0.2, 1.5, 0.74], look: [0.08, 1.57, -1.0], fov: 43 },
+    { p: 0.54, pos: [0.22, 1.58, 0.78], look: [0.08, 1.58, -1.0], fov: 44 },
+    { p: 0.67, pos: [0.2, 1.56, 0.74], look: [0.08, 1.58, -1.0], fov: 43 },
     { p: 0.74, pos: [0.5, 1.6, 0.28], look: [0.46, 1.6, -1.0], fov: 35 },
     { p: 0.87, pos: [0.52, 1.58, 0.24], look: [0.46, 1.6, -1.0], fov: 34 },
     { p: 0.95, pos: [1.3, 1.95, 2.45], look: [-0.1, 1.2, -0.72], fov: 42 },
@@ -440,6 +442,8 @@ export function buildNight({ updates: UPDATES, problems: PROBLEMS, systems: SYST
   }
 
   const tmp = V(0, 0, 0);
+  const handTurn = new THREE.Euler();
+  const handQ = new THREE.Quaternion();
   function update(p, t) {
     // cards fly from the laptop to the board
     const from = V(0, 0.93, -0.66);
@@ -488,15 +492,16 @@ export function buildNight({ updates: UPDATES, problems: PROBLEMS, systems: SYST
     // head: down at the laptop, up at the board, back down
     const up = seg(p, 0.29, 0.35) * (1 - seg(p, 0.7, 0.78));
     const yaw = lerp(0.22, 0, seg(p, 0.48, 0.55)) * up + lerp(0, -0.24, seg(p, 0.66, 0.72)) * up;
-    head.rotation.x = lerp(-0.32, 0.2, up) + Math.sin(t * 0.9) * 0.012;
+    head.rotation.x = lerp(-0.42, 0.3, up) + Math.sin(t * 0.9) * 0.012;
     head.rotation.y = yaw + 0.02 + Math.sin(t * 0.37) * 0.02;
     head.rotation.z = 0.05 * (1 - up);
     fig.userData.upper.scale.y = 1 + Math.sin(t * 1.6) * 0.004;
-    // small typing movements while he looks at the laptop
+    // small typing and trackpad movements from the wrists while he looks at the laptop
     const typing = 1 - up;
     fig.userData.hands.forEach((h, i) => {
-      const b = h.userData.base;
-      h.position.set(b.x + (i ? Math.sin(t * 1.3) * 0.006 : 0), b.y + typing * Math.max(0, Math.sin(t * (i ? 3.1 : 7.3) + i)) * 0.004, b.z + (i ? Math.cos(t * 1.1) * 0.005 : 0));
+      const tap = typing * Math.max(0, Math.sin(t * (i ? 3.1 : 7.3) + i));
+      handTurn.set(tap * (i ? 0.012 : 0.03), i ? Math.sin(t * 1.3) * 0.035 * typing : 0, 0);
+      h.quaternion.copy(h.userData.rest).multiply(handQ.setFromEuler(handTurn));
     });
     drawScreen(p, t);
     drawPhone(p > 0.88);

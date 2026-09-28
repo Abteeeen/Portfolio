@@ -151,8 +151,14 @@ export const system = {
 
 export const founder = {
   line: "I co-founded CJ Studios so small businesses could afford production that used to need a crew.",
-  photo: undefined as string | undefined,
-  photoSpec: "Portrait · plain background · 2000 × 2500",
+  /**
+   * The picture beside the line. Set `image` to a CJ Studios still (for example one from the
+   * Twitter pipeline, dropped into public/founder/) and it replaces the clip.
+   */
+  image: undefined as string | undefined,
+  video: "/founder/cj-reel.mp4",
+  poster: "/founder/cj-reel.jpg",
+  caption: "From the CJ Studios reel",
 };
 
 export const method = [

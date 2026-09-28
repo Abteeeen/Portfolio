@@ -65,7 +65,14 @@ Persistent: the sigil, the nav, the sound toggle (a low hum, off by default), th
 | 0.93–1 | Close | Wide shot, the loop starts again tomorrow |
 
 - The words on the cards and screens are `night` in `content/film.ts`; the captions are `hero` and `story`.
-- `night/engine.js` is the renderer: print-style shading snapped to three inks, ink outlines drawn from depth and normals, grain, and the camera path. `night/figure.js` builds the person, `night/props.js` the furniture, `night/scene.js` the room and the timeline.
+- `night/engine.js` is the renderer: print-style shading snapped to three inks, ink outlines drawn from depth and normals, grain, and the camera path. `night/props.js` builds the furniture and `night/scene.js` the room and the timeline.
+- The person is `public/hero/person.glb` (about 600 KB), dressed and rigged by `night/figure.js`: his head and hands are separate nodes, so the film turns his head up to the board and moves his wrists while he types. The body is sculpted in code from signed distance fields (face, ears, hair, jointed hands with nails, shirt folds) by `scripts/sculpt-person.mjs`. To change it, edit that script and rebuild:
+
+  ```bash
+  npm i --no-save meshoptimizer gltfpack
+  node scripts/sculpt-person.mjs person.raw.glb
+  npx gltfpack -i person.raw.glb -o public/hero/person.glb -cc -kn -km
+  ```
 - `public/hero/night-desk.jpg` and `night-desk-portrait.jpg` show until the first frame renders, and stay if WebGL is not available. If the opening shot changes, capture new ones from the canvas at scroll 0 (1600 × 1000, and 390 × 844 at 2×).
 
 ## Proof images
@@ -87,7 +94,7 @@ To replace one:
 1. Drop the file in `public/proof/`.
 2. In `content/film.ts`, set `image: "/proof/your-file.jpg"` on that case.
 
-Specs: laptop 1600 × 1000, phone 1170 × 2532, tablet 1600 × 1200. The founder portrait is the one image still missing: set `founder.photo` in `content/film.ts` to a real photo (2000 × 2500 or larger, plain background); the site converts it to duotone.
+Specs: laptop 1600 × 1000, phone 1170 × 2532, tablet 1600 × 1200. The Founder band plays a muted clip from the CJ Studios reel (`public/founder/cj-reel.mp4`, only while it is on screen and never under reduced motion). To show a still instead, for example one from the CJ Studios Twitter pipeline, put it in `public/founder/` (16:9, 1600 × 900 or larger) and set `founder.image` in `content/film.ts`.
 
 Client naming is controlled in `content/site.ts` (`client.public`). Anonymised clients show `client.anonymised`.
 

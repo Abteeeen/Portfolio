@@ -44,7 +44,7 @@ function clockText(day: string, p: number) {
   return `${day} · ${h}:${m}`;
 }
 
-const posterCommon = { alt: "", sizes: "100vw", quality: 80 };
+const posterCommon = { alt: "", sizes: "100vw", quality: 75 };
 const posterWide = getImageProps({ ...posterCommon, src: "/hero/night-desk.jpg", width: 1600, height: 1000 }).props;
 const posterTall = getImageProps({ ...posterCommon, src: "/hero/night-desk-portrait.jpg", width: 780, height: 1688 }).props;
 
@@ -79,6 +79,7 @@ export function NightDesk() {
 
     async function boot(el: HTMLCanvasElement) {
       const [mod, THREE] = await Promise.all([import("./night/scene"), import("three")]);
+      const person = mod.loadPerson("/hero/person.glb");
       const css = getComputedStyle(document.documentElement);
       const fam = (v: string, fallback: string) => {
         const f = css.getPropertyValue(v).trim();
@@ -96,7 +97,7 @@ export function NightDesk() {
         ),
       );
       const stage = new mod.Stage(el, { dprMax: window.innerWidth < 760 ? 1.5 : 1.35 });
-      const scene = mod.buildNight(night);
+      const scene = mod.buildNight(night, await person);
       const camera = new THREE.PerspectiveCamera(40, 1, 0.05, 60);
       return {
         stage,
