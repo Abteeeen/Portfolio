@@ -93,6 +93,6 @@ A visitor types one line about their problem, or pastes a role. The site answers
 
 ## Deploy
 
-1. Import the repo in [Vercel](https://vercel.com/new). Framework: Next.js.
-2. Environment variables (see `.env.example`): `NEXT_PUBLIC_SITE_URL`, and optionally `N8N_BRIEF_WEBHOOK_URL`, `N8N_BRIEF_TOKEN`.
-3. Add the domain under Settings → Domains.
+1. Import the repo in [Vercel](https://vercel.com/new). Framework: Next.js. Give the project any free name; it becomes the address, e.g. `abhiram-anil.vercel.app`.
+2. No environment variables are needed. The site reads its Vercel address automatically for metadata, the sitemap and robots.
+3. Optional later: add a custom domain under Settings → Domains and set `NEXT_PUBLIC_SITE_URL` to it. Set `N8N_BRIEF_WEBHOOK_URL` and `N8N_BRIEF_TOKEN` to answer briefs with n8n.
