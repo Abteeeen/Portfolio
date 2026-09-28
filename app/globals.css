@@ -196,3 +196,47 @@ body {
   .appear { opacity: 1; transform: none; transition: none; }
   .band { transform: none; transition: none; }
 }
+
+/* ---------- Night desk: the pinned hero film (components/film/NightDesk.tsx) ---------- */
+.nd { position: relative; height: 760vh; }
+.nd-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+.nd-frame { position: absolute; inset: 0; clip-path: inset(64px 16px 56px 16px round 4px); background: #0e0e10; }
+.nd-poster, .nd-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.nd-poster { object-fit: cover; object-position: 50% 50%; transition: opacity 0.4s ease 0.7s; }
+.nd-poster.is-off { opacity: 0; }
+.nd-canvas { opacity: 0; transition: opacity 0.6s ease; }
+.nd-canvas.is-on { opacity: 1; }
+.nd-scrim { position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, rgba(11, 11, 11, 0.9) 0%, rgba(11, 11, 11, 0.62) 30%, rgba(11, 11, 11, 0) 60%); }
+.nd-clock { position: absolute; top: 80px; right: 32px; color: var(--ink); background: rgba(11, 11, 11, 0.62); padding: 7px 9px; border-radius: 3px; }
+.nd-rail { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 5; }
+.nd-rail i { display: block; width: 2px; height: 18px; background: #26252a; transition: height 0.3s, background 0.3s; }
+.nd-rail i.on { height: 38px; background: var(--mark); }
+.nd-copy { position: absolute; left: clamp(44px, 5vw, 88px); top: 50%; width: min(30.5vw, 500px); z-index: 4; }
+.nd-ch { position: absolute; left: 0; top: 0; width: 100%; will-change: opacity, transform; }
+.nd-ch > div { transform: translateY(-50%); }
+.nd-ch.nd-wide { width: min(50vw, 820px); }
+.nd-num { margin: 0 0 16px; font-family: var(--font-mono); font-weight: 600; font-size: 12px; letter-spacing: 0.16em; color: var(--mark); }
+.nd-kicker { display: inline-block; margin: 0; padding-bottom: 10px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #a8a398;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8' preserveAspectRatio='none'%3E%3Cpath d='M1 5 C 30 2, 60 7, 95 4 S 160 2, 199 5' fill='none' stroke='%23ffe94d' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") left bottom / 100% 7px no-repeat; }
+.nd-h1, .nd-h2 { font-family: var(--font-display); font-weight: 400; line-height: 0.98; letter-spacing: -0.012em; margin: 20px 0; text-wrap: balance; color: var(--ink); }
+.nd-h1 { font-size: clamp(46px, 6.3vw, 112px); }
+.nd-h2 { font-size: clamp(38px, 4.2vw, 74px); }
+.nd-line { margin: 0; max-width: 36ch; font-size: clamp(16px, 1.22vw, 19px); line-height: 1.5; color: #bdb8ad; }
+.nd-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.nd-cta a { font-family: var(--font-mono); font-weight: 600; font-size: 12.5px; letter-spacing: 0.12em; text-transform: uppercase; padding: 16px 22px; border-radius: 999px; text-decoration: none; }
+.nd-pri { background: var(--mark); color: var(--mark-ink); }
+.nd-sec { color: var(--ink); border: 1px solid #3b3a41; }
+@media (max-width: 760px) {
+  .nd-frame { clip-path: inset(60px 12px 42% 12px round 4px); }
+  .nd-clock { top: 72px; right: 24px; }
+  .nd-rail, .nd-scrim { display: none; }
+  .nd-copy { left: 20px; right: 20px; width: auto; top: auto; bottom: 21%; }
+  .nd-ch.nd-wide { width: 100%; }
+  .nd-h1 { font-size: clamp(32px, 9.2vw, 46px); margin: 12px 0; }
+  .nd-h2 { font-size: clamp(30px, 8.4vw, 40px); margin: 12px 0; }
+  .nd-num { margin-bottom: 10px; }
+  .nd-cta { margin-top: 18px; }
+  .nd-cta a { padding: 13px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .nd-rail i, .nd-poster, .nd-canvas { transition: none; } }
