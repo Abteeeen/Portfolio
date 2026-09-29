@@ -32,6 +32,15 @@ const jetbrains = localFont({
   fallback: ["ui-monospace", "Menlo", "monospace"],
 });
 
+const caveat = localFont({
+  src: "./fonts/caveat-latin.woff2",
+  weight: "500 700",
+  style: "normal",
+  variable: "--font-caveat",
+  display: "swap",
+  fallback: ["Bradley Hand", "Segoe Print", "cursive"],
+});
+
 const title = `${person.name} | AI Automation Engineer, HR Analyst, Co-founder of CJ Studios`;
 const description =
   "Send the problem, get back a system. AI automation, HR analytics and growth marketing by Abhiram Anil, co-founder of CJ Studios. Five cases, one method, and a brief you can send in one line.";
@@ -75,7 +84,7 @@ const jsonLd = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${gloock.variable} ${archivo.variable} ${jetbrains.variable}`}>
+    <html lang="en" className={`${gloock.variable} ${archivo.variable} ${jetbrains.variable} ${caveat.variable}`}>
       <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>

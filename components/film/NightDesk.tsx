@@ -2,16 +2,22 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getImageProps } from "next/image";
-import { hero, night, story } from "@/content/film";
+import { hero, story } from "@/content/film";
 import { Highlight } from "./Highlight";
 import { Kinetic } from "./Kinetic";
 
 /**
- * Screen 01, the Night desk film. The section is tall and its stage is pinned; scroll
- * progress (0..1) moves the camera through the 3D scene in components/film/night and
- * swaps the chapter captions on the left. A poster of the first frame shows until the
- * scene has rendered, and stays if WebGL is not available.
+ * Screen 01, the Night desk film. The section is tall and its stage is pinned; scroll progress
+ * (0..1) scrubs through 180 frames rendered in Blender (Cycles) from the scene in
+ * components/film/night, and swaps the chapter captions on the left. The frames live in
+ * public/hero/frames; scripts/night-desk explains how they are made. A poster of the first frame
+ * shows until the frames are ready.
  */
+
+/** Frames in public/hero/frames, 0001.webp to 0180.webp. Phones load every other one; until a frame
+ * has loaded, the nearest one that has stands in. */
+const FRAMES = 180;
+const frameUrl = (i: number) => `/hero/frames/${String(i + 1).padStart(4, "0")}.webp`;
 
 /** Scroll windows for the opening, the four chapters and the close. */
 const WIN: [number, number][] = [
@@ -44,9 +50,25 @@ function clockText(day: string, p: number) {
   return `${day} · ${h}:${m}`;
 }
 
+/** Coarse frames first so scrubbing works early, then the gaps fill in. */
+function loadOrder(step: number) {
+  const seen = new Set<number>();
+  const order: number[] = [];
+  for (const stride of [32, 16, 8, 4, 2, 1]) {
+    if (stride < step) break;
+    for (let i = 0; i < FRAMES; i += stride) {
+      if (seen.has(i)) continue;
+      seen.add(i);
+      order.push(i);
+    }
+  }
+  if (!seen.has(FRAMES - 1)) order.push(FRAMES - 1);
+  return order;
+}
+
 const posterCommon = { alt: "", sizes: "100vw", quality: 75 };
-const posterWide = getImageProps({ ...posterCommon, src: "/hero/night-desk.jpg", width: 1600, height: 1000 }).props;
-const posterTall = getImageProps({ ...posterCommon, src: "/hero/night-desk-portrait.jpg", width: 780, height: 1688 }).props;
+const posterWide = getImageProps({ ...posterCommon, src: "/hero/night-desk.jpg", width: 1152, height: 720 }).props;
+const posterTall = getImageProps({ ...posterCommon, src: "/hero/night-desk-portrait.jpg", width: 576, height: 720 }).props;
 
 export function NightDesk() {
   const section = useRef<HTMLElement>(null);
@@ -62,57 +84,49 @@ export function NightDesk() {
     const sec = section.current;
     const cv = canvas.current;
     const fr = frame.current;
-    if (!sec || !cv || !fr) return;
+    const ctx = cv?.getContext("2d", { alpha: false });
+    if (!sec || !cv || !fr || !ctx) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const day = today();
     let raf = 0;
-    let stopped = false;
     let visible = true;
     let shown = false;
     let p = 0;
     let last = performance.now();
-    const t0 = last;
+    let drawn = "";
     const mouse = { x: 0, y: 0, sx: 0, sy: 0 };
 
-    type World = Awaited<ReturnType<typeof boot>>;
-    let world: World | null = null;
+    // phones take every other frame; the player blends between whatever has loaded
+    const step = window.innerWidth < 760 ? 2 : 1;
+    const imgs: (HTMLImageElement | null)[] = new Array(FRAMES).fill(null);
+    const order = loadOrder(step);
+    let cursor = 0;
+    let stopped = false;
+    const pump = () => {
+      if (stopped || cursor >= order.length) return;
+      const i = order[cursor++];
+      const img = new Image();
+      img.decoding = "async";
+      img.src = frameUrl(i);
+      img
+        .decode()
+        .then(() => {
+          imgs[i] = img;
+          drawn = "";
+        })
+        .catch(() => {})
+        .finally(pump);
+    };
+    for (let k = 0; k < 6; k++) pump();
 
-    async function boot(el: HTMLCanvasElement) {
-      const [mod, THREE] = await Promise.all([import("./night/scene"), import("three")]);
-      const person = mod.loadPerson("/hero/person.glb");
-      const css = getComputedStyle(document.documentElement);
-      const fam = (v: string, fallback: string) => {
-        const f = css.getPropertyValue(v).trim();
-        return f ? `${f}, ${fallback}` : fallback;
-      };
-      const fonts = {
-        mono: fam("--font-jetbrains", "ui-monospace, Menlo, monospace"),
-        sans: fam("--font-archivo", "Arial, sans-serif"),
-        serif: fam("--font-gloock", "Georgia, serif"),
-      };
-      mod.setFonts(fonts);
-      await Promise.all(
-        [`600 21px ${fonts.mono}`, `700 33px ${fonts.sans}`, `400 38px ${fonts.serif}`].map((f) =>
-          document.fonts.load(f).catch(() => []),
-        ),
-      );
-      const stage = new mod.Stage(el, { dprMax: window.innerWidth < 760 ? 1.5 : 1.35 });
-      const scene = mod.buildNight(night, await person);
-      const camera = new THREE.PerspectiveCamera(40, 1, 0.05, 60);
-      return {
-        stage,
-        scene,
-        camera,
-        pos: new THREE.Vector3(),
-        look: new THREE.Vector3(),
-        right: new THREE.Vector3(),
-        up: new THREE.Vector3(),
-        dispose: () => {
-          mod.disposeScene(scene.scene);
-          stage.dispose();
-        },
-      };
-    }
+    const nearest = (i: number, dir: number) => {
+      for (let d = 0; d < FRAMES; d++) {
+        const j = i + d * dir;
+        if (j < 0 || j >= FRAMES) break;
+        if (imgs[j]) return j;
+      }
+      return -1;
+    };
 
     const onMove = (e: PointerEvent) => {
       mouse.x = e.clientX / window.innerWidth - 0.5;
@@ -131,7 +145,7 @@ export function NightDesk() {
       if (!visible) return;
       const r = sec.getBoundingClientRect();
       const tp = clamp01(-r.top / Math.max(1, r.height - window.innerHeight));
-      p = reduce ? tp : p + (tp - p) * (1 - Math.exp(-dt * 6));
+      p = reduce ? tp : p + (tp - p) * (1 - Math.exp(-dt * 7));
 
       const W = cv.clientWidth;
       const H = cv.clientHeight;
@@ -154,56 +168,51 @@ export function NightDesk() {
       ticks.current.forEach((el, i) => el?.classList.toggle("on", p >= WIN[i + 1][0] - 0.01 && p < WIN[i + 1][1] + 0.01));
       if (clock.current) clock.current.textContent = clockText(day, p);
 
-      if (!world) return;
-      const { stage, scene, camera, pos, look, right, up } = world;
-      stage.resize(W, H);
-      camera.aspect = W / H;
-      let fov = scene.path.at(p, pos, look);
-      if (narrow) fov *= 1.14;
-      camera.fov = fov;
+      // the frame for this scroll position (the nearest one that has loaded)
+      const fi = Math.round(p * (FRAMES - 1));
+      const lo = nearest(fi, -1);
+      const hi = nearest(fi, 1);
+      if (lo < 0 && hi < 0) return;
+      const pick = lo < 0 ? hi : hi < 0 ? lo : fi - lo <= hi - fi ? lo : hi;
       if (!reduce) {
         mouse.sx += (mouse.x - mouse.sx) * 0.05;
         mouse.sy += (mouse.y - mouse.sy) * 0.05;
       }
-      camera.position.copy(pos);
-      camera.lookAt(look);
-      right.setFromMatrixColumn(camera.matrix, 0);
-      up.setFromMatrixColumn(camera.matrix, 1);
-      const amp = pos.distanceTo(look) * 0.018;
-      camera.position.addScaledVector(right, mouse.sx * amp).addScaledVector(up, -mouse.sy * amp * 0.6);
-      camera.lookAt(look);
-      // keep the subject centred in the part of the frame beside the captions
-      const aimLeft = narrow ? left : Math.round(W * 0.38);
-      const cx = (aimLeft + (W - rightIn)) / 2;
-      const cy = (top + (H - bottom)) / 2;
-      camera.setViewOffset(W, H, W / 2 - cx, H / 2 - cy, W, H);
-      camera.updateProjectionMatrix();
-      const t = (now - t0) / 1000;
-      scene.update(p, t);
-      stage.render(scene.scene, camera, t);
-      if (!shown) {
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const cw = Math.round(W * dpr);
+      const ch = Math.round(H * dpr);
+      // the picture is fitted to the part of the frame beside the captions (full width at the ends)
+      const rx = narrow ? 0 : lerp(0, W * 0.38, open);
+      const rh = narrow ? H * 0.58 : H;
+      const key = `${cw}x${ch}|${pick}|${rx.toFixed(1)}|${mouse.sx.toFixed(3)}|${mouse.sy.toFixed(3)}`;
+      if (key === drawn) return;
+      drawn = key;
+      if (cv.width !== cw || cv.height !== ch) {
+        cv.width = cw;
+        cv.height = ch;
+      }
+      const img = imgs[pick]!;
+      const rw = W - rx;
+      const sc = Math.max(rw / img.naturalWidth, rh / img.naturalHeight) * 1.03;
+      const dw = img.naturalWidth * sc;
+      const dh = img.naturalHeight * sc;
+      const px = rx + (rw - dw) / 2 + mouse.sx * rw * 0.012;
+      const py = (rh - dh) / 2 + mouse.sy * rh * 0.012;
+      ctx.fillStyle = "#0b0b0b";
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.drawImage(img, px * dpr, py * dpr, dw * dpr, dh * dpr);
+      if (!shown && imgs[0]) {
         shown = true;
         setLive(true);
       }
     };
     raf = requestAnimationFrame(tick);
 
-    boot(cv)
-      .then((w) => {
-        if (stopped) w.dispose();
-        else world = w;
-      })
-      .catch(() => {
-        /* no WebGL: the poster stays */
-      });
-
     return () => {
       stopped = true;
       cancelAnimationFrame(raf);
       io.disconnect();
       window.removeEventListener("pointermove", onMove);
-      world?.dispose();
-      world = null;
     };
   }, []);
 

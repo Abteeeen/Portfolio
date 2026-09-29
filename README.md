@@ -25,9 +25,9 @@ npm start          # serve the build
 | # | Screen | What happens |
 | --- | --- | --- |
 | 00 | Power on | Telemetry lines, 1.8 s, skippable, once per session |
-| 01 | Night desk | A pinned 3D film of one day. Abhiram at his desk at night: the day's AI updates fly to a pinboard, most fall off, the keepers are tied with yellow thread to client problems, and results get pinned over them. Four chapter captions on the left |
+| 01 | Night desk | A pinned film of one day, rendered in Blender and scrubbed by scroll. Abhiram at his desk at night: the day's AI updates fly to a pinboard, most fall off, the keepers are tied with yellow thread to client problems, and results get pinned over them. Four chapter captions on the left |
 | 02 | Running now | Three numbers count up, each with a source |
-| 03–07 | Casework | Five full-bleed screens: client, one phrase from the brief, one line of result, one real screen in a device |
+| 03 | Casework: the board | The hero's pinboard, one case at a time. The section is pinned and the cork board slides sideways under a picture light: problem card, a photo of the proof, what was built, the stack, and the results on sticky notes tied on with yarn. On phones each case is its own small board |
 | 08 | The system | The Canvas pinned; scroll drives the camera, hover names the case |
 | 09 | Founder | A yellow band torn across the black, portrait in duotone |
 | 10 | Method | Read. Measure. Build. Report. under a light beam |
@@ -42,20 +42,22 @@ Persistent: the sigil, the nav, the sound toggle (a low hum, off by default), th
 | Case studies, roles, contact details | `content/site.ts` |
 | Every word of the film: boot lines, hero, chapters, desk cards, numbers, phrases, method, ending, ticker, canvas nodes | `content/film.ts` |
 | Screens | `components/film/*.tsx` |
-| Night desk hero (Three.js) | `components/film/NightDesk.tsx`, scene in `components/film/night/` |
+| Night desk hero (frame player) | `components/film/NightDesk.tsx`, frames in `public/hero/frames/` |
+| How the frames are made (scene, Blender, grade) | `components/film/night/`, `scripts/night-desk/` |
+| Casework board | `components/film/Casework.tsx`, textures in `public/board/` |
 | The Canvas (Three.js) | `components/film/CanvasScene.tsx` |
 | Kinetic letters, highlighter, fade-ins | `components/film/Kinetic.tsx`, `Highlight.tsx`, `Appear.tsx` |
 | Boot, HUD, smooth scroll | `components/film/Boot.tsx`, `Hud.tsx`, `Smooth.tsx` |
 | "Write me a brief" form and API | `components/BriefForm.tsx`, `app/api/brief/route.ts`, `lib/match.ts` |
-| Tokens, grain, highlighter, device frames | `app/globals.css` |
+| Tokens, grain, highlighter, the board's paper and pins | `app/globals.css` |
 | Proof images | `public/proof/` |
-| Fonts (Gloock, Archivo, JetBrains Mono) | `app/fonts/` |
+| Fonts (Gloock, Archivo, JetBrains Mono, Caveat for the handwriting on the board) | `app/fonts/` |
 
 ## The Night desk hero
 
-`components/film/NightDesk.tsx` pins a stage for about seven screens of scroll and drives the scene in `components/film/night/` with scroll progress from 0 to 1:
+`components/film/NightDesk.tsx` pins a stage for about seven screens of scroll and scrubs through 180 frames with scroll progress from 0 to 1, the way the scroll-driven sites on Scrolltide and Motionsites play their footage: the nearest frame is drawn to a canvas, frames load coarse-first (every 32nd, then 16th, down to every frame; phones take every other one), and fitted to the part of the screen beside the captions.
 
-| Progress | Chapter | In the scene |
+| Progress | Chapter | In the film |
 | --- | --- | --- |
 | 0 | Opening | Wide shot of the room at night |
 | 0.12–0.29 | 01 Every day | Over the shoulder, the feed on the laptop |
@@ -64,20 +66,20 @@ Persistent: the sigil, the nav, the sound toggle (a low hum, off by default), th
 | 0.71–0.89 | 04 Proven | Result cards get pinned over the problems |
 | 0.93–1 | Close | Wide shot, the loop starts again tomorrow |
 
-- The words on the cards and screens are `night` in `content/film.ts`; the captions are `hero` and `story`.
-- `night/engine.js` is the renderer: print-style shading snapped to three inks, ink outlines drawn from depth and normals, grain, and the camera path. `night/props.js` builds the furniture and `night/scene.js` the room and the timeline.
-- The person is `public/hero/person.glb` (about 600 KB), dressed and rigged by `night/figure.js`: his head and hands are separate nodes, so the film turns his head up to the board and moves his wrists while he types. The body is sculpted in code from signed distance fields (face, ears, hair, jointed hands with nails, shirt folds) by `scripts/sculpt-person.mjs`. To change it, edit that script and rebuild:
+The captions are `hero` and `story` in `content/film.ts`. `public/hero/night-desk.jpg` and `night-desk-portrait.jpg` show until the first frame is ready.
 
-  ```bash
-  npm i --no-save meshoptimizer gltfpack
-  node scripts/sculpt-person.mjs person.raw.glb
-  npx gltfpack -i person.raw.glb -o public/hero/person.glb -cc -kn -km
-  ```
-- `public/hero/night-desk.jpg` and `night-desk-portrait.jpg` show until the first frame renders, and stay if WebGL is not available. If the opening shot changes, capture new ones from the canvas at scroll 0 (1600 × 1000, and 390 × 844 at 2×).
+### How the frames are made
+
+The realism comes from rendering, not from a real-time shader: the scene is path traced in Blender's Cycles with physically based materials, CC0 textures, real lights and depth of field, then graded with a LUT.
+
+1. **The scene** is still code: `components/film/night/` builds the room, the board, the cards and the timeline in Three.js (the words come from `night` in `content/film.ts`), and `night/figure.js` dresses the sculpted man in `scripts/night-desk/person.glb` (sculpted from signed distance fields by `scripts/night-desk/sculpt-person.mjs`).
+2. **Export.** `node scripts/night-desk/dump-content.mjs`, then `python3 scripts/night-desk/serve.py` and open the page it prints. It writes `export/scene.glb`, `export/anim.json` (camera, moving objects, yarn and card colours for every frame) and the screen images.
+3. **Build and render.** With Blender's Python (`pip install bpy==4.2.0`): `python scripts/night-desk/fetch-textures.py`, `python scripts/night-desk/build.py`, then `python scripts/night-desk/render.py scripts/night-desk/frames 1152 720 24 1-180`. About 40 seconds a frame on four CPU cores.
+4. **Grade and encode.** `scripts/night-desk/encode.sh` applies `night-desk.cube` (made by `make-lut.py`: cool shadows, warm highlights, a milky black, the yellow kept) and a soft vignette with ffmpeg, and writes the WebP frames and the posters.
 
 ## Proof images
 
-Each casework screen shows a device with either a screenshot or a yellow placeholder that names what is missing. The five casework images are in place:
+Each case on the board shows its proof as a photo pinned to the cork. The five images are in place:
 
 | Case | File | Kind |
 | --- | --- | --- |

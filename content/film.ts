@@ -17,6 +17,10 @@ export type FilmCase = {
   image?: string;
   /** What the image should be, shown on the placeholder. */
   imageSpec: string;
+  /** Short name for the case card on the board. */
+  short: string;
+  /** Written under the proof photo on the board. */
+  caption: string;
 };
 
 /** Order of the five casework screens. */
@@ -35,6 +39,8 @@ export const filmCases: Record<string, FilmCase> = {
     device: "laptop",
     image: "/proof/five-star-home.jpg",
     imageSpec: "Laptop · the live site · 1600 × 1000",
+    short: "Five Star Training Academy",
+    caption: "the live site",
   },
   "tender-radar": {
     phrase: "We miss tenders",
@@ -42,6 +48,8 @@ export const filmCases: Record<string, FilmCase> = {
     device: "phone",
     image: "/proof/tender-radar-slack.jpg",
     imageSpec: "Phone · the Slack digest in #tenders · 1170 × 2532",
+    short: "QLD contractor",
+    caption: "the 6:00 digest",
   },
   "eco-clean-whatsapp-leads": {
     phrase: "nobody calls",
@@ -49,6 +57,8 @@ export const filmCases: Record<string, FilmCase> = {
     device: "phone",
     image: "/proof/eco-clean-whatsapp.jpg",
     imageSpec: "Phone · the WhatsApp thread · 1170 × 2532",
+    short: "Kerala workshop",
+    caption: "a lead, start to booking",
   },
   "codevantage-people": {
     phrase: "people data lives in five spreadsheets",
@@ -56,6 +66,8 @@ export const filmCases: Record<string, FilmCase> = {
     device: "laptop",
     image: "/proof/codevantage-people.jpg",
     imageSpec: "Laptop · the people dashboard · 1600 × 1000",
+    short: "Codevantage",
+    caption: "the weekly people view",
   },
   "fine-jewellery-direct": {
     phrase: "not look like every other Shopify store",
@@ -63,6 +75,8 @@ export const filmCases: Record<string, FilmCase> = {
     device: "tablet",
     image: "/proof/not-a-basic.jpg",
     imageSpec: "Tablet · the homepage · 1600 × 1200",
+    short: "Jewellery label",
+    caption: "the homepage design",
   },
 };
 

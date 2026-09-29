@@ -1,8 +1,8 @@
 // Sculpts the Night desk person from signed distance fields, meshes each part with surface
 // nets, simplifies with meshoptimizer and writes an uncompressed GLB. To rebuild the model:
 //   npm i --no-save meshoptimizer gltfpack
-//   node scripts/sculpt-person.mjs person.raw.glb
-//   npx gltfpack -i person.raw.glb -o public/hero/person.glb -cc -kn -km
+//   node scripts/night-desk/sculpt-person.mjs person.raw.glb
+//   npx gltfpack -i person.raw.glb -o scripts/night-desk/person.glb -cc -kn -km
 // Coordinates: metres, figure space: floor under the seat, facing -z. The head and hands are
 // written in local space under nodes placed at their pivots, so the scene can move them.
 import * as THREE from 'three';
