@@ -1,6 +1,6 @@
 /**
  * The person at the desk: a sculpted man in a grey tee, jeans and white trainers, with yellow
- * headphones resting round his neck. The body is public/hero/person.glb, sculpted from signed
+ * headphones resting round his neck. The body is scripts/night-desk/person.glb, sculpted from signed
  * distance fields (face, ears, jointed hands with nails, cropped hair, shirt folds) and
  * compressed with gltfpack. His head and hands are separate nodes so the film can move them.
  */

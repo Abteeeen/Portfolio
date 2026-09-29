@@ -59,7 +59,7 @@ function palmShape(h, lean, fronds, seed) {
   return new THREE.ShapeGeometry(shapes, 6);
 }
 
-/** `person` is the body from loadPerson('/hero/person.glb'). */
+/** `person` is the body from loadPerson('scripts/night-desk/person.glb'). */
 export function buildNight({ updates: UPDATES, problems: PROBLEMS, systems: SYSTEMS }, person) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(C.paper);

@@ -1,0 +1,102 @@
+<!doctype html><html><head><meta charset="utf-8">
+<!-- Exports the Night desk scene for Blender: scene.glb, anim.json (camera, moving objects, yarn,
+     card colours for every frame) and the laptop and phone screen images. Run serve.py first. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Gloock&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}</script>
+</head><body><script type="module">
+import * as THREE from 'three';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+import * as mod from '/components/film/night/scene.js';
+const N = +(new URLSearchParams(location.search).get('n') || 180);
+const post = (name, body) => fetch('/scripts/night-desk/' + name, { method: 'POST', body });
+const log = (...a) => { console.log(...a); };
+try {
+const fonts = { mono: '"JetBrains Mono", monospace', sans: 'Archivo, Arial, sans-serif', serif: 'Gloock, Georgia, serif' };
+mod.setFonts(fonts);
+await Promise.all([`600 21px ${fonts.mono}`, `500 20px ${fonts.mono}`, `700 33px ${fonts.sans}`, `600 27px ${fonts.sans}`, `400 38px ${fonts.serif}`].map((f) => document.fonts.load(f)));
+const night = await (await fetch('/scripts/night-desk/export/night.json')).json();
+const person = await mod.loadPerson('/scripts/night-desk/person.glb');
+const S = mod.buildNight(night, person);
+const scene = S.scene;
+S.update(0, 0);
+// unique names
+let i = 0;
+scene.traverse((o) => { o.name = `n${i++}` + (o.name ? '_' + o.name.replace(/[^A-Za-z0-9]/g, '') : ''); });
+const hex = (c) => '#' + c.getHexString();
+const mats = new Map();
+let k = 0;
+const threads = [], screens = [];
+const drop = [];
+scene.traverse((o) => {
+  if (!o.isMesh) return;
+  const m = o.material;
+  if (m.colorWrite === false) { drop.push(o); return; }
+  if (o.geometry.type === 'TubeGeometry' && o.geometry.parameters.path && o.geometry.parameters.radius < 0.01) { threads.push(o); drop.push(o); return; }
+  if (!mats.has(m)) {
+    const u = m.userData.u;
+    const img = m.map && m.map.image;
+    m.name = `m${k++}|` + (u ? `tone|${hex(u.uLit.value)}|${hex(u.uMid.value)}|${hex(u.uShade.value)}` : `basic|${hex(m.color)}`) + (img ? `|map${img.width}x${img.height}` : '');
+    mats.set(m, m.name);
+  }
+  if (m.map && m.map.image && m.map.image.width === 1024 && m.map.image.height === 640) screens.push({ o, kind: 'laptop' });
+  if (m.map && m.map.image && m.map.image.width === 256 && m.map.image.height === 544) screens.push({ o, kind: 'phone' });
+});
+log('mats', mats.size, 'threads', threads.length, 'drop', drop.length, 'screens', screens.length);
+// per-frame state
+const objs = []; scene.traverse((o) => objs.push(o));
+const effVis = (o) => { for (let a = o; a; a = a.parent) if (!a.visible) return false; return true; };
+const frames = [];
+const pos = new THREE.Vector3(), look = new THREE.Vector3();
+const shots = { laptop: [], phone: [] };
+const screenIdx = { laptop: -1, phone: -1 };
+const lastVer = { laptop: -1, phone: -1 };
+const matList = [...mats.keys()];
+for (let f = 0; f < N; f++) {
+  const p = f / (N - 1), t = f * 0.22;
+  S.update(p, t);
+  scene.updateMatrixWorld(true);
+  const fov = S.path.at(p, pos, look);
+  const fr = { p, cam: { pos: pos.toArray(), look: look.toArray(), fov }, mw: {}, vis: {}, mat: {}, thr: threads.map((o) => o.geometry.drawRange.count / o.geometry.index.count), scr: {} };
+  for (const o of objs) { fr.mw[o.name] = o.matrixWorld.elements.map((v) => +v.toFixed(5)); fr.vis[o.name] = effVis(o) ? 1 : 0; }
+  for (const m of matList) { const u = m.userData.u; if (u) fr.mat[m.name] = [hex(u.uLit.value), hex(u.uMid.value), hex(u.uShade.value)]; }
+  for (const s of screens) {
+    const tex = s.o.material.map;
+    if (tex.version !== lastVer[s.kind]) {
+      lastVer[s.kind] = tex.version;
+      const blob = await new Promise((r) => tex.image.toBlob(r, 'image/png'));
+      const idx = shots[s.kind].length; shots[s.kind].push(idx);
+      await post(`${s.kind}-${String(idx).padStart(3, '0')}.png`, blob);
+      screenIdx[s.kind] = idx;
+    }
+    fr.scr[s.kind] = { idx: screenIdx[s.kind], obj: s.o.name };
+  }
+  frames.push(fr);
+}
+// keep only what changes
+const f0 = frames[0];
+const animated = new Set(), visAnim = new Set(), matAnim = new Set();
+for (const fr of frames) {
+  for (const n in fr.mw) { if (fr.mw[n].some((v, j) => Math.abs(v - f0.mw[n][j]) > 1e-5)) animated.add(n); if (fr.vis[n] !== f0.vis[n]) visAnim.add(n); }
+  for (const n in fr.mat) if (fr.mat[n].join() !== f0.mat[n].join()) matAnim.add(n);
+}
+const compact = frames.map((fr) => ({ p: fr.p, cam: fr.cam, thr: fr.thr, scr: fr.scr,
+  mw: Object.fromEntries([...animated].map((n) => [n, fr.mw[n]])),
+  vis: Object.fromEntries([...visAnim].map((n) => [n, fr.vis[n]])),
+  mat: Object.fromEntries([...matAnim].map((n) => [n, fr.mat[n]])) }));
+const threadInfo = threads.map((o) => ({ name: o.name, r: o.geometry.parameters.radius, pts: o.geometry.parameters.path.getPoints(96).map((v) => v.toArray()), color: hex(o.material.color) }));
+const lights = [];
+scene.traverse((o) => { if (o.isLight) lights.push({ name: o.name, type: o.type, color: hex(o.color), intensity: o.intensity, pos: o.getWorldPosition(new THREE.Vector3()).toArray(), target: o.target ? o.target.getWorldPosition(new THREE.Vector3()).toArray() : null, angle: o.angle, penumbra: o.penumbra, distance: o.distance }); });
+await post('anim.json', JSON.stringify({ N, frames: compact, threads: threadInfo, lights, f0vis: f0.vis, f0mw: Object.fromEntries([...animated].map((n) => [n, f0.mw[n]])) }));
+log('animated objs', animated.size, 'vis', visAnim.size, 'mat', matAnim.size, 'shots', shots.laptop.length, shots.phone.length);
+// export static scene at frame 0 state, with everything visible so hidden cards export too
+S.update(0, 0);
+for (const o of drop) o.removeFromParent();
+scene.traverse((o) => { o.visible = true; });
+const lightsToDrop = []; scene.traverse((o) => { if (o.isLight) lightsToDrop.push(o); }); lightsToDrop.forEach((o) => o.removeFromParent());
+const glb = await new GLTFExporter().parseAsync(scene, { binary: true, onlyVisible: false, maxTextureSize: 2048 });
+await post('scene.glb', new Blob([glb]));
+log('glb bytes', glb.byteLength);
+window.__done = 'ok';
+document.body.textContent = 'Exported ' + N + ' frames to scripts/night-desk/export/';
+} catch (e) { console.error(e); window.__done = 'ERR ' + e.message + ' ' + e.stack; }
+</script></body></html>

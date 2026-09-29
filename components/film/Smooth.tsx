@@ -26,7 +26,15 @@ export function Smooth() {
       lenis.scrollTo(el as HTMLElement, { offset: 0, duration: 1.4 });
     };
     document.addEventListener("click", onClick);
+    // other components can ask for a smooth scroll to a y position (the casework board does)
+    const onTo = (e: Event) => {
+      const { y, immediate } = (e as CustomEvent<{ y: number; immediate?: boolean }>).detail;
+      e.preventDefault();
+      lenis.scrollTo(y, immediate ? { immediate: true, force: true } : { duration: 1.4 });
+    };
+    window.addEventListener("smooth:to", onTo);
     return () => {
+      window.removeEventListener("smooth:to", onTo);
       document.removeEventListener("click", onClick);
       gsap.ticker.remove(tick);
       lenis.destroy();
