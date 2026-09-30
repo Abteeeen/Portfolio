@@ -3,6 +3,7 @@
 import { useEffect, useRef, type CSSProperties } from "react";
 import { hero, night, story } from "@/content/film";
 import { Highlight } from "./Highlight";
+import { Logo, MARKS } from "./Marks";
 import { Kinetic } from "./Kinetic";
 
 /**
@@ -186,22 +187,34 @@ export function Feed() {
         <div className="fd-desk">
           <div className="fd-col">
             <div className="fd-colh">
-              <span>Today in AI</span>
+              <span>This week in AI</span>
               <b data-count="new">0 new</b>
             </div>
             <div ref={feed} className="fd-list">
               {night.updates.map((u) => (
-                <div key={u.time} className="fd-item">
-                  <div className="fd-meta">
-                    <span>{u.src}</span>
-                    <span className="tabular">{u.time}</span>
+                <article key={u.t} className="fd-item">
+                  <span className="fd-tile" style={{ "--bc": MARKS[u.mark].color } as CSSProperties}>
+                    <Logo mark={u.mark} />
+                  </span>
+                  <div className="fd-body">
+                    <div className="fd-meta">
+                      <b>{u.src}</b>
+                      <i className="fd-sep" aria-hidden="true" />
+                      <span className="fd-dom">{u.domain}</span>
+                      <span className="fd-date tabular">{u.date}</span>
+                    </div>
+                    <p className="fd-t">{u.t}</p>
+                    <p className="fd-desc">{u.line}</p>
+                    <p className="fd-why">
+                      {u.keep && u.to !== undefined ? `→ ${night.problems[u.to].who} · ` : ""}
+                      {u.why}
+                    </p>
                   </div>
-                  <p className="fd-t">{u.t}</p>
                   <span className="fd-stamp" aria-hidden="true">
                     {u.keep ? "KEEP" : "SKIP"}
                   </span>
                   <i className="fd-dot" aria-hidden="true" />
-                </div>
+                </article>
               ))}
             </div>
           </div>
@@ -245,7 +258,7 @@ export function Feed() {
           </div>
           <svg ref={wire} className="fd-wire" aria-hidden="true">
             {KEEPERS.map(({ u }) => (
-              <path key={u.time} pathLength={1} />
+              <path key={u.t} pathLength={1} />
             ))}
           </svg>
         </div>

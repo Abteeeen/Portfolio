@@ -187,22 +187,39 @@ body {
 .fd-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
 .fd-desk { position: absolute; left: min(44vw, 640px); right: clamp(20px, 4vw, 60px); top: 64px; bottom: 56px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: minmax(0, 1fr) auto; gap: 0 clamp(16px, 2.5vw, 44px); }
 .fd-col { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
-.fd-list { flex: 1; display: flex; flex-direction: column; gap: clamp(5px, 0.9vh, 8px); min-height: 0; padding-top: clamp(8px, 1.4vh, 14px); }
+.fd-list { flex: 1; display: flex; flex-direction: column; gap: clamp(5px, 0.9vh, 8px); min-height: 0; padding-top: clamp(8px, 1.4vh, 14px); container-type: size; }
 .fd-colh { display: flex; justify-content: space-between; gap: 8px; font-family: var(--font-mono); font-weight: 600; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--grey); padding-bottom: 12px; border-bottom: 1px solid #26252a; white-space: nowrap; }
 .fd-colh b { color: var(--mark); font-weight: 600; }
-.fd-item { position: relative; flex: 1 1 0; min-height: 0; overflow: hidden; background: #f4efe3; color: #151515; border-radius: 3px; padding: clamp(6px, 1.1vh, 12px) 78px clamp(6px, 1.1vh, 12px) 14px; box-shadow: 0 10px 24px -10px rgba(0,0,0,.7); transform: translateY(24px); opacity: 0; transition: transform .5s cubic-bezier(.2,.8,.2,1), opacity .35s, background .4s, color .4s; will-change: transform, opacity; }
+.fd-item { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; display: flex; gap: 11px; background: #f4efe3; color: #151515; border-radius: 4px; padding: clamp(6px, 1vh, 10px) 76px clamp(6px, 1vh, 10px) 10px; box-shadow: 0 1px 0 rgba(0,0,0,.3), 0 10px 24px -12px rgba(0,0,0,.7); transform: translateY(24px); opacity: 0; transition: transform .5s cubic-bezier(.2,.8,.2,1), opacity .35s, background .4s, color .4s; will-change: transform, opacity; }
+.fd-tile { display: inline-flex; align-items: center; justify-content: center; flex: none; width: clamp(26px, 4vh, 36px); height: clamp(26px, 4vh, 36px); border-radius: 8px; background: var(--bc); color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); transition: filter .4s; }
+.fd-tile svg { width: 52%; height: 52%; }
+.fd-body { min-width: 0; flex: 1; }
 .fd-item.in { transform: none; opacity: 1; }
-.fd-meta { display: flex; justify-content: space-between; font-family: var(--font-mono); font-weight: 600; font-size: 10px; letter-spacing: 0.12em; color: #6d665a; }
-.fd-t { margin: clamp(3px, 0.6vh, 8px) 0 0; font-weight: 600; font-size: clamp(12px, 1.7vh, 17px); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fd-meta { display: flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-weight: 500; font-size: 10.5px; letter-spacing: 0.04em; color: #6d665a; white-space: nowrap; }
+.fd-meta b { font-weight: 600; color: #2a2620; }
+.fd-sep { width: 3px; height: 3px; border-radius: 50%; background: #a9a394; flex: none; }
+.fd-dom { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.fd-date { margin-left: auto; }
+.fd-t { margin: clamp(2px, 0.5vh, 5px) 0 0; font-weight: 600; font-size: clamp(12px, 1.6vh, 15px); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fd-desc { display: none; margin: 2px 0 0; font-size: 12.5px; line-height: 1.35; color: #4a463f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fd-why { display: none; margin: clamp(4px, 0.7vh, 7px) 0 0; font-family: var(--font-mono); font-weight: 500; font-size: 11px; line-height: 1.3; color: #6d665a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fd-item.keep .fd-why { display: block; }
+/* the description line and the skip reasons need room; they show when the list is tall enough */
+@container (min-height: 780px) { .fd-desc { display: block; } }
+@container (min-height: 900px) { .fd-item.skip .fd-why { display: block; } }
 .fd-stamp { position: absolute; right: 12px; top: 50%; margin: 0; transform: translateY(-50%) rotate(-8deg) scale(1.6); opacity: 0; font-family: var(--font-mono); font-weight: 800; font-size: 12px; letter-spacing: 0.16em; padding: 5px 8px; border: 2px solid currentColor; border-radius: 3px; transition: transform .25s cubic-bezier(.2,1.4,.4,1), opacity .2s; }
 .fd-item.skip .fd-stamp, .fd-item.keep .fd-stamp { opacity: 1; transform: translateY(-50%) rotate(-8deg) scale(1); }
 .fd-item.skip { background: #d8d3c6; color: #7d786d; }
+.fd-item.skip .fd-meta, .fd-item.skip .fd-meta b, .fd-item.skip .fd-desc { color: #7d786d; }
+.fd-item.skip .fd-tile { filter: saturate(0) opacity(.55); }
 .fd-item.skip .fd-stamp { color: #9a3b2a; }
 .fd-item.skip .fd-t { text-decoration: line-through; }
 .fd-item.keep { background: var(--mark); color: var(--mark-ink); }
-.fd-item.keep .fd-meta { color: #6f6410; }
+.fd-item.keep .fd-meta, .fd-item.keep .fd-why { color: #6f6410; }
+.fd-item.keep .fd-meta b { color: var(--mark-ink); }
+.fd-item.keep .fd-desc { color: #3f3a10; }
 .fd-item.gone { opacity: 0; transform: translateX(-30px); }
-.fd-dot { position: absolute; left: -4px; top: 32px; width: 8px; height: 8px; border-radius: 50%; background: var(--mark); box-shadow: 0 0 0 4px rgba(255,233,77,.18); opacity: 0; }
+.fd-dot { position: absolute; left: -4px; top: 50%; margin-top: -4px; width: 8px; height: 8px; border-radius: 50%; background: var(--mark); box-shadow: 0 0 0 4px rgba(255,233,77,.18); opacity: 0; }
 .fd-item.keep .fd-dot { opacity: 1; }
 .fd-prob { position: relative; flex: 1 1 0; min-height: 0; overflow: hidden; background: #f4efe3; color: #151515; border-radius: 3px; padding: clamp(8px, 1.3vh, 12px) 14px; box-shadow: 0 10px 24px -10px rgba(0,0,0,.7); }
 .fd-who { font-family: var(--font-mono); font-weight: 600; font-size: 10px; letter-spacing: 0.12em; color: #6d665a; }
@@ -240,10 +257,12 @@ body {
   .fd { height: 560vh; }
   .fd-desk { left: 14px; right: 14px; top: 60px; bottom: 43%; gap: 12px; }
   .fd-list { gap: 4px; padding-top: 8px; }
-  .fd-item { padding: 3px 46px 3px 8px; }
+  .fd-item { padding: 3px 52px 3px 6px; gap: 7px; }
+  .fd-tile { width: 22px; height: 22px; border-radius: 6px; }
   .fd-t { font-size: 11px; margin-top: 1px; }
-  .fd-meta { font-size: 8px; }
-  .fd-meta span + span { display: none; }
+  .fd-meta { font-size: 8px; gap: 5px; }
+  .fd-dom, .fd-sep { display: none; }
+  .fd-why { display: none !important; }
   .fd-stamp { right: 6px; font-size: 9px; padding: 3px 5px; }
   .fd-who { display: none; }
   .fd-prob { padding: 6px 9px; }
