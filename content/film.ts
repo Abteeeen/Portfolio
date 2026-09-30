@@ -3,6 +3,7 @@
  * page that is not in site.ts lives here. Keep it short: the whole page is
  * about 220 words.
  */
+import type { Mark } from "@/components/film/Marks";
 import { cases } from "./site";
 
 export type Device = "laptop" | "phone" | "tablet";
@@ -112,12 +113,27 @@ export const story = {
   close: "Tomorrow, the same loop",
 };
 
-export type NightUpdate = { time: string; src: string; t: string; keep: boolean; to?: number };
+export type NightUpdate = {
+  /** Announcement date, as printed on the card. */
+  date: string;
+  /** Who announced it and where; `mark` picks the logo in components/film/Marks.tsx. */
+  src: string;
+  domain: string;
+  mark: Mark;
+  /** Headline, one line of what it is. */
+  t: string;
+  line: string;
+  keep: boolean;
+  /** Index into `problems` for a keeper, and the reason it was kept or skipped. */
+  to?: number;
+  why: string;
+};
 
 /**
- * What the scene shows on its cards and screens. Updates marked `keep` turn yellow and get
- * tied (`to`) to one of the problems; each problem gets its result pinned over it. Client
- * names follow the naming rules in site.ts.
+ * What the feed shows. Real announcements, in the order they were read. Updates marked `keep`
+ * turn yellow and get tied (`to`) to one of the problems; each problem gets its result pinned
+ * over it. Swap these for whatever you actually read; the dates are the announcement dates.
+ * Client names follow the naming rules in site.ts.
  */
 export const night: {
   updates: NightUpdate[];
@@ -125,15 +141,15 @@ export const night: {
   systems: { n: string; m: string; t: string }[];
 } = {
   updates: [
-    { time: "06:10", src: "LAUNCH", t: "Agent framework no. 41", keep: false },
-    { time: "06:42", src: "N8N", t: "Agent node: new tools", keep: true, to: 0 },
-    { time: "07:15", src: "THREAD", t: "500 prompts you need", keep: false },
-    { time: "08:03", src: "TOOL", t: "AI logo generator v3", keep: false },
-    { time: "09:20", src: "BETA", t: "Waitlist-only browser agent", keep: false },
-    { time: "10:05", src: "CLAUDE", t: "New model, longer context", keep: true, to: 1 },
-    { time: "12:30", src: "META ADS", t: "Click-to-WhatsApp update", keep: true, to: 2 },
-    { time: "15:48", src: "APP", t: "Another AI chat app", keep: false },
-    { time: "19:12", src: "GA4", t: "Attribution changes", keep: true, to: 3 },
+    { date: "05 Apr", src: "Meta", domain: "ai.meta.com", mark: "meta", t: "Llama 4 Scout and Maverick", line: "Open-weight models with a 10M-token context window.", keep: false, why: "Open weights, nowhere cheap to host them for a client." },
+    { date: "10 Apr", src: "n8n", domain: "n8n.io", mark: "n8n", t: "MCP Server Trigger and MCP Client Tool nodes", line: "Workflows can expose tools to Claude and call other MCP servers.", keep: true, to: 0, why: "Tender Radar now answers questions from Slack." },
+    { date: "19 May", src: "GitHub", domain: "github.blog", mark: "github", t: "Copilot coding agent, public preview", line: "Assign an issue and Copilot opens a pull request.", keep: false, why: "Claude Code already does this here." },
+    { date: "20 May", src: "Google", domain: "blog.google", mark: "google", t: "Veo 3 with native audio", line: "Video generation with sound and dialogue, from Gemini and Flow.", keep: false, why: "The studio is on Kling for reels." },
+    { date: "21 May", src: "Google", domain: "ads.google.com", mark: "googletagmanager", t: "Google tag gateway for advertisers", line: "First-party tag serving through your own domain, via Cloudflare.", keep: true, to: 3, why: "More enquiries measured; fewer lost to blockers." },
+    { date: "16 Jun", src: "WhatsApp", domain: "blog.whatsapp.com", mark: "whatsapp", t: "Ads in Status and promoted channels", line: "Businesses can advertise in the Updates tab and start a chat from the ad.", keep: true, to: 2, why: "One more place a click becomes a WhatsApp chat." },
+    { date: "18 Sep", src: "Notion", domain: "notion.com", mark: "notion", t: "Notion 3.0: agents in the workspace", line: "Agents that build pages, databases and run multi-step work.", keep: false, why: "The blog agent already writes to Notion from n8n." },
+    { date: "29 Sep", src: "Anthropic", domain: "anthropic.com", mark: "anthropic", t: "Claude Sonnet 4.5", line: "Best model for agents and long-running tasks; 200K context.", keep: true, to: 1, why: "Resume scoring moved to it; top-fit accuracy went up." },
+    { date: "30 Sep", src: "OpenAI", domain: "openai.com", mark: "openai", t: "Sora 2 and the Sora app", line: "Video with synced audio; invite-only in the US and Canada.", keep: false, why: "Not available here yet, and the studio has a pipeline." },
   ],
   problems: [
     { who: "QLD CONTRACTOR", q: "We miss tenders.", r: "A tender digest in Slack every morning" },
