@@ -25,7 +25,7 @@ npm start          # serve the build
 | # | Screen | What happens |
 | --- | --- | --- |
 | 00 | Power on | Telemetry lines, 1.8 s, skippable, once per session |
-| 01 | Night desk | A pinned film of one day, rendered in Blender and scrubbed by scroll. Abhiram at his desk at night: the day's AI updates fly to a pinboard, most fall off, the keepers are tied with yellow thread to client problems, and results get pinned over them. Four chapter captions on the left |
+| 01 | The feed | One day at the desk as two columns. "Today in AI" fills with the day's updates as you scroll; each is stamped KEEP or SKIP, the rejects fade, the keepers are wired across to the client problem they solved, and the result ticks in. Four chapter captions on the left |
 | 02 | Running now | Three numbers count up, each with a source |
 | 03 | Casework: the board | The hero's pinboard, one case at a time. The section is pinned and the cork board slides sideways under a picture light: problem card, a photo of the proof, what was built, the stack, and the results on sticky notes tied on with yarn. On phones each case is its own small board |
 | 08 | The system | The Canvas pinned; scroll drives the camera, hover names the case |
@@ -42,8 +42,7 @@ Persistent: the sigil, the nav, the sound toggle (a low hum, off by default), th
 | Case studies, roles, contact details | `content/site.ts` |
 | Every word of the film: boot lines, hero, chapters, desk cards, numbers, phrases, method, ending, ticker, canvas nodes | `content/film.ts` |
 | Screens | `components/film/*.tsx` |
-| Night desk hero (frame player) | `components/film/NightDesk.tsx`, frames in `public/hero/frames/` |
-| How the frames are made (scene, Blender, grade) | `components/film/night/`, `scripts/night-desk/` |
+| The feed (hero) | `components/film/Feed.tsx` |
 | Casework board | `components/film/Casework.tsx`, textures in `public/board/` |
 | The Canvas (Three.js) | `components/film/CanvasScene.tsx` |
 | Kinetic letters, highlighter, fade-ins | `components/film/Kinetic.tsx`, `Highlight.tsx`, `Appear.tsx` |
@@ -53,29 +52,20 @@ Persistent: the sigil, the nav, the sound toggle (a low hum, off by default), th
 | Proof images | `public/proof/` |
 | Fonts (Gloock, Archivo, JetBrains Mono, Caveat for the handwriting on the board) | `app/fonts/` |
 
-## The Night desk hero
+## The feed
 
-`components/film/NightDesk.tsx` pins a stage for about seven screens of scroll and scrubs through 180 frames with scroll progress from 0 to 1, the way the scroll-driven sites on Scrolltide and Motionsites play their footage: the nearest frame is drawn to a canvas, frames load coarse-first (every 32nd, then 16th, down to every frame; phones take every other one), and fitted to the part of the screen beside the captions.
+`components/film/Feed.tsx` pins a stage for about six screens of scroll and drives everything with scroll progress from 0 to 1. It is all text and SVG, so it is sharp at any size and weighs a few KB.
 
-| Progress | Chapter | In the film |
+| Progress | Chapter | On the desk |
 | --- | --- | --- |
-| 0 | Opening | Wide shot of the room at night |
-| 0.12–0.29 | 01 Every day | Over the shoulder, the feed on the laptop |
-| 0.31–0.49 | 02 Tested | Cards fly to the board, rejects fall, keepers turn yellow |
-| 0.51–0.69 | 03 Applied | Yellow thread ties keepers to client problems |
-| 0.71–0.89 | 04 Proven | Result cards get pinned over the problems |
-| 0.93–1 | Close | Wide shot, the loop starts again tomorrow |
+| 0 | Opening | The four client problems wait on the right |
+| 0.12–0.29 | 01 Every day | The nine updates arrive, with their times |
+| 0.31–0.49 | 02 Tested | Each is stamped KEEP or SKIP |
+| 0.51–0.69 | 03 Applied | Rejects fade; keepers are wired to the problem they solved |
+| 0.71–0.89 | 04 Proven | The result ticks in on each problem card |
+| 0.93–1 | Close | The line again, with the calls to action |
 
-The captions are `hero` and `story` in `content/film.ts`. `public/hero/night-desk.jpg` and `night-desk-portrait.jpg` show until the first frame is ready.
-
-### How the frames are made
-
-The realism comes from rendering, not from a real-time shader: the scene is path traced in Blender's Cycles with physically based materials, CC0 textures, real lights and depth of field, then graded with a LUT.
-
-1. **The scene** is still code: `components/film/night/` builds the room, the board, the cards and the timeline in Three.js (the words come from `night` in `content/film.ts`), and `night/figure.js` dresses the sculpted man in `scripts/night-desk/person.glb` (sculpted from signed distance fields by `scripts/night-desk/sculpt-person.mjs`).
-2. **Export.** `node scripts/night-desk/dump-content.mjs`, then `python3 scripts/night-desk/serve.py` and open the page it prints. It writes `export/scene.glb`, `export/anim.json` (camera, moving objects, yarn and card colours for every frame) and the screen images.
-3. **Build and render.** With Blender's Python (`pip install bpy==4.2.0`): `python scripts/night-desk/fetch-textures.py`, `python scripts/night-desk/build.py`, then `python scripts/night-desk/render.py scripts/night-desk/frames 1152 720 24 1-180`. About 40 seconds a frame on four CPU cores.
-4. **Grade and encode.** `scripts/night-desk/encode.sh` applies `night-desk.cube` (made by `make-lut.py`: cool shadows, warm highlights, a milky black, the yellow kept) and a soft vignette with ffmpeg, and writes the WebP frames and the posters.
+The updates, problems and results are `night` in `content/film.ts`; the captions are `hero` and `story`. A tally under the feed counts read, tested, kept and rejected.
 
 ## Proof images
 
@@ -113,7 +103,7 @@ A visitor types one line about their problem, or pastes a role. The site answers
 
 ## Performance and accessibility
 
-- Three.js loads on the client after first paint. The Night desk renders only while it is on screen, caps the pixel ratio, and uses smaller shadow maps on phones and low-core machines; the Canvas gives phones fewer cards, no transmission and pixel ratio 1.
+- The hero is text and SVG only, a few KB. Three.js loads on the client after first paint for the Canvas, which gives phones fewer cards, no transmission and pixel ratio 1.
 - Everything is visible at rest under `prefers-reduced-motion`: no letter flight, no boot delay, no glide.
 - The boot never gates the page: it ends by itself, any click or key skips it, and it is skipped for the rest of the session.
 - Sound is off until the visitor turns it on.
