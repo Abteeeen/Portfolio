@@ -30,10 +30,3 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# night desk render pipeline (scripts/night-desk): downloads and intermediate files
-/scripts/night-desk/export/
-/scripts/night-desk/tex/
-/scripts/night-desk/seq/
-/scripts/night-desk/frames/
-/scripts/night-desk/*.blend
-/scripts/night-desk/*.blend1
