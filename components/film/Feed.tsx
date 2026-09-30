@@ -30,7 +30,20 @@ const seg = (p: number, a: number, b: number) => {
 };
 
 const DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+const MONTHS = [
+  "JAN",
+  "FEB",
+  "MAR",
+  "APR",
+  "MAY",
+  "JUN",
+  "JUL",
+  "AUG",
+  "SEP",
+  "OCT",
+  "NOV",
+  "DEC",
+];
 function today() {
   const d = new Date();
   return `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}`;
@@ -60,7 +73,9 @@ export function Feed() {
     const pc = probs.current;
     const sv = wire.current;
     if (!sec || !fd || !pc || !sv) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     const day = today();
     const items = [...fd.querySelectorAll<HTMLElement>(".fd-item")];
     const problems = [...pc.querySelectorAll<HTMLElement>(".fd-prob")];
@@ -74,22 +89,6 @@ export function Feed() {
     let p = 0;
     let last = performance.now();
 
-    const layout = () => {
-      const narrow = window.innerWidth < 860;
-      const H = fd.clientHeight - (narrow ? 44 : 104);
-      const gap = narrow ? 4 : 8;
-      const row = Math.max(narrow ? 28 : 44, Math.min(70, (H - gap * 8) / 9));
-      items.forEach((el, i) => {
-        el.style.top = `${44 + i * (row + gap)}px`;
-        el.style.height = `${row}px`;
-      });
-      const ph = Math.min(150, (H + (narrow ? 0 : 44) - 24) / 4);
-      problems.forEach((el, i) => {
-        el.style.top = `${44 + i * (ph + 8)}px`;
-        el.style.minHeight = `${ph}px`;
-      });
-    };
-
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
       const dt = Math.min(0.1, (now - last) / 1000);
@@ -102,12 +101,18 @@ export function Feed() {
       chapters.current.forEach((el, i) => {
         if (!el) return;
         const [a, b] = WIN[i];
-        const o = seg(p, a - 0.006, a + 0.012) * (1 - seg(p, b - 0.012, b + 0.006));
+        const o =
+          seg(p, a - 0.006, a + 0.012) * (1 - seg(p, b - 0.012, b + 0.006));
         el.style.opacity = String(o);
         el.style.transform = `translateY(${(1 - o) * 14}px)`;
         el.style.visibility = o < 0.01 ? "hidden" : "visible";
       });
-      ticks.current.forEach((el, i) => el?.classList.toggle("on", p >= WIN[i + 1][0] - 0.01 && p < WIN[i + 1][1] + 0.01));
+      ticks.current.forEach((el, i) =>
+        el?.classList.toggle(
+          "on",
+          p >= WIN[i + 1][0] - 0.01 && p < WIN[i + 1][1] + 0.01,
+        ),
+      );
       if (clock.current) clock.current.textContent = clockText(day, p);
 
       // arrivals through chapter 01, stamps through 02, wires through 03, results through 04
@@ -141,14 +146,18 @@ export function Feed() {
           const y1 = a.top + a.height / 2 - fr.top;
           const x2 = b.left - fr.left;
           const y2 = b.top + 24 - fr.top;
-          paths[k].setAttribute("d", `M${x1} ${y1} C ${x1 + 60} ${y1}, ${x2 - 60} ${y2}, ${x2} ${y2}`);
+          paths[k].setAttribute(
+            "d",
+            `M${x1} ${y1} C ${x1 + 60} ${y1}, ${x2 - 60} ${y2}, ${x2} ${y2}`,
+          );
         }
         const done = p > 0.72 + k * 0.035;
         if (u.to !== undefined) problems[u.to].classList.toggle("done", done);
         if (done) solved++;
       });
       if (c.new) c.new.textContent = `${read} new`;
-      if (c.solved) c.solved.textContent = `${solved} / ${night.problems.length} solved`;
+      if (c.solved)
+        c.solved.textContent = `${solved} / ${night.problems.length} solved`;
       if (c.read) c.read.textContent = String(read);
       if (c.tested) c.tested.textContent = String(tested);
       if (c.kept) c.kept.textContent = String(kept);
@@ -159,38 +168,59 @@ export function Feed() {
       visible = e.isIntersecting;
     });
     io.observe(sec);
-    layout();
-    window.addEventListener("resize", layout);
     raf = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(raf);
       io.disconnect();
-      window.removeEventListener("resize", layout);
     };
   }, []);
 
   return (
-    <section id="top" ref={section} className="fd" aria-label="One day of work, told in four chapters">
+    <section
+      id="top"
+      ref={section}
+      className="fd"
+      aria-label="One day of work, told in four chapters"
+    >
       <div className="fd-stage">
         <div className="fd-desk">
-          <div ref={feed} className="fd-col">
+          <div className="fd-col">
             <div className="fd-colh">
               <span>Today in AI</span>
               <b data-count="new">0 new</b>
             </div>
-            {night.updates.map((u) => (
-              <div key={u.time} className="fd-item">
-                <div className="fd-meta">
-                  <span>{u.src}</span>
-                  <span className="tabular">{u.time}</span>
+            <div ref={feed} className="fd-list">
+              {night.updates.map((u) => (
+                <div key={u.time} className="fd-item">
+                  <div className="fd-meta">
+                    <span>{u.src}</span>
+                    <span className="tabular">{u.time}</span>
+                  </div>
+                  <p className="fd-t">{u.t}</p>
+                  <span className="fd-stamp" aria-hidden="true">
+                    {u.keep ? "KEEP" : "SKIP"}
+                  </span>
+                  <i className="fd-dot" aria-hidden="true" />
                 </div>
-                <p className="fd-t">{u.t}</p>
-                <span className="fd-stamp" aria-hidden="true">
-                  {u.keep ? "KEEP" : "SKIP"}
-                </span>
-                <i className="fd-dot" aria-hidden="true" />
-              </div>
-            ))}
+              ))}
+            </div>
+          </div>
+          <div className="fd-col">
+            <div className="fd-colh">
+              <span>Client problems</span>
+              <b data-count="solved">0 / {night.problems.length} solved</b>
+            </div>
+            <div ref={probs} className="fd-list">
+              {night.problems.map((pr) => (
+                <div key={pr.who} className="fd-prob">
+                  <div className="fd-who">{pr.who}</div>
+                  <p className="fd-q">“{pr.q}”</p>
+                  <div className="fd-r">{pr.r}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="fd-foot">
             <div className="fd-tally" aria-hidden="true">
               <span>
                 read<b data-count="read">0</b>
@@ -205,28 +235,19 @@ export function Feed() {
                 rejected<b data-count="skipped">0</b>
               </span>
             </div>
-          </div>
-          <div ref={probs} className="fd-col">
-            <div className="fd-colh">
-              <span>Client problems</span>
-              <b data-count="solved">0 / {night.problems.length} solved</b>
-            </div>
-            {night.problems.map((pr) => (
-              <div key={pr.who} className="fd-prob">
-                <div className="fd-who">{pr.who}</div>
-                <p className="fd-q">“{pr.q}”</p>
-                <div className="fd-r">{pr.r}</div>
-              </div>
-            ))}
+            <span
+              ref={clock}
+              className="fd-clock mono-label tabular"
+              aria-hidden="true"
+            >
+              TODAY · 06:10
+            </span>
           </div>
           <svg ref={wire} className="fd-wire" aria-hidden="true">
             {KEEPERS.map(({ u }) => (
               <path key={u.time} pathLength={1} />
             ))}
           </svg>
-          <span ref={clock} className="fd-clock mono-label tabular" aria-hidden="true">
-            TODAY · 06:10
-          </span>
         </div>
 
         <div className="fd-rail" aria-hidden="true">
@@ -253,7 +274,12 @@ export function Feed() {
                 <Kinetic as="span" text={hero.line1} trigger="on" />{" "}
                 <Kinetic as="span" text={hero.line2} trigger="on" delay={0.4} />{" "}
                 <Highlight trigger="on" delay={1.5} variant="fill">
-                  <Kinetic as="span" text={hero.word} trigger="on" delay={0.7} />
+                  <Kinetic
+                    as="span"
+                    text={hero.word}
+                    trigger="on"
+                    delay={0.7}
+                  />
                 </Highlight>
               </h1>
               <p className="fd-line">{hero.sub}</p>
@@ -290,7 +316,8 @@ export function Feed() {
             <div>
               <p className="fd-kicker">{story.close}</p>
               <p className="fd-h1" aria-hidden="true">
-                {hero.line1} {hero.line2} <span className="mark">{hero.word}</span>
+                {hero.line1} {hero.line2}{" "}
+                <span className="mark">{hero.word}</span>
               </p>
               <div className="fd-cta">
                 <a href="#contact" className="fd-pri" data-hover>
