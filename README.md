@@ -90,6 +90,10 @@ Specs: laptop 1600 × 1000, phone 1170 × 2532, tablet 1600 × 1200. The Founder
 
 Client naming is controlled in `content/site.ts` (`client.public`). Anonymised clients show `client.anonymised`.
 
+## The resume
+
+`public/Abhiram-Anil-Resume.pdf` is rendered from `scripts/resume/resume.html` (Letter, Tinos or Liberation Serif, the teal headings). To change it, edit the HTML and print it to PDF from Chrome with no margins (the page sets its own), or with Playwright: `page.pdf({ format: "Letter", preferCSSPageSize: true })`.
+
 ## "Write me a brief"
 
 A visitor types one line about their problem, or pastes a role. The site answers with how Abhiram would start and the two closest cases.
