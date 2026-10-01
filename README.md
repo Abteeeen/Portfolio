@@ -25,7 +25,7 @@ npm start          # serve the build
 | # | Screen | What happens |
 | --- | --- | --- |
 | 00 | Power on | Telemetry lines, 1.8 s, skippable, once per session |
-| 01 | The feed | One day at the desk as two columns. "This week in AI" fills with real announcements as you scroll, each with its source's mark, its date and one line of what it is; each is stamped KEEP or SKIP, the rejects fade, the keepers say which client they went to and why and are wired across to that problem, and the result ticks in. Four chapter captions on the left |
+| 01 | The feed | One day at the desk as two columns. "This month in AI" fills with real announcements as you scroll, each with its source's mark, its date and one line of what it is; each is stamped KEEP or SKIP, the rejects fade, the keepers say which client they went to and why and are wired across to that problem, and the result ticks in. Four chapter captions on the left |
 | 02 | Running now | Three numbers count up, each with a source |
 | 03 | Casework: the board | The hero's pinboard, one case at a time. The section is pinned and the cork board slides sideways under a picture light: problem card, a photo of the proof, what was built, the stack, and the results on sticky notes tied on with yarn. On phones each case is its own small board |
 | 08 | The system | The Canvas pinned; scroll drives the camera, hover names the case |
@@ -65,7 +65,7 @@ Persistent: the sigil, the nav, the sound toggle (a low hum, off by default), th
 | 0.71–0.89 | 04 Proven | The result ticks in on each problem card |
 | 0.93–1 | Close | The line again, with the calls to action |
 
-The updates, problems and results are `night` in `content/film.ts`. The updates are real announcements with their real dates; swap them for whatever was read that week. Each names a `mark`, one of the brand logos in `components/film/Marks.tsx` (paths from the Simple Icons set, CC0, with the brand colour for the tile). The one-line description under each headline shows when the list is tall enough for it, and the skip reasons when it is taller still; the kept cards always show the client and the reason. The captions are `hero` and `story`. A tally under the feed counts read, tested, kept and rejected.
+The updates, problems and results are `night` in `content/film.ts`. The updates are real announcements with their real dates; swap them for whatever was read that month. Each names a `mark`, one of the brand logos in `components/film/Marks.tsx` (paths from the Simple Icons set, CC0, with the brand colour for the tile). The one-line description under each headline shows when the list is tall enough for it, and the skip reasons when it is taller still; the kept cards always show the client and the reason. The captions are `hero` and `story`. A tally under the feed counts read, tested, kept and rejected.
 
 ## Proof images
 

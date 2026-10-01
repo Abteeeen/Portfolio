@@ -187,7 +187,7 @@ export function Feed() {
         <div className="fd-desk">
           <div className="fd-col">
             <div className="fd-colh">
-              <span>This week in AI</span>
+              <span>This month in AI</span>
               <b data-count="new">0 new</b>
             </div>
             <div ref={feed} className="fd-list">
