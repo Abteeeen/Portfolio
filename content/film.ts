@@ -177,6 +177,7 @@ export const running = [
 export const system = {
   line: "Everything above runs on this.",
   hint: "Move across the graph. Each node belongs to a case.",
+  hintTouch: "Scroll through the graph. Each node belongs to a case.",
 };
 
 export const founder = {

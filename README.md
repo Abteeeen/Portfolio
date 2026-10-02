@@ -67,6 +67,8 @@ Persistent: the sigil, the nav, the sound toggle (a low hum, off by default), th
 
 The updates, problems and results are `night` in `content/film.ts`. The updates are real announcements with their real dates; swap them for whatever was read that month. Each names a `mark`, one of the brand logos in `components/film/Marks.tsx` (paths from the Simple Icons set, CC0, with the brand colour for the tile). The one-line description under each headline shows when the list is tall enough for it, and the skip reasons when it is taller still; the kept cards always show the client and the reason. The captions are `hero` and `story`. A tally under the feed counts read, tested, kept and rejected.
 
+On phones (under 860 px) the desk takes the top 70% of the screen with the feed column wider than the problems column, the stamp takes the date's place in each card, the rejects collapse so the keepers can show their lines, and the chapter copy sits under the desk. Tablets get the same layout with larger type; landscape phones get the desk on the right with one line per card.
+
 ## Proof images
 
 Each case on the board shows its proof as a photo pinned to the cork. The five images are in place:
@@ -107,7 +109,8 @@ A visitor types one line about their problem, or pastes a role. The site answers
 
 ## Performance and accessibility
 
-- The hero is text and SVG only, a few KB. Three.js loads on the client after first paint for the Canvas, which gives phones fewer cards, no transmission and pixel ratio 1.
+- The hero is text and SVG only, a few KB. Three.js loads on the client after first paint for the Canvas, which gives phones fewer cards, no transmission and pixel ratio 1, and a wider lens with the cards kept near the centre line so they stay in a portrait frame.
+- The nav is a menu sheet on phones (the Menu button in the top bar), which also holds the sound toggle; the top bar has a dark backdrop there so it stays legible over the board and the form.
 - Everything is visible at rest under `prefers-reduced-motion`: no letter flight, no boot delay, no glide.
 - The boot never gates the page: it ends by itself, any click or key skips it, and it is skipped for the rest of the session.
 - Sound is off until the visitor turns it on.

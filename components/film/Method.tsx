@@ -40,12 +40,15 @@ export function Method() {
                 >
                   {m.word}
                 </button>
-                <p className={`max-w-[38ch] text-[clamp(15px,1.5vw,19px)] text-grey transition-opacity duration-500 ${i === active ? "opacity-100" : "opacity-0"}`}>
+                <p className={`hidden max-w-[38ch] text-[clamp(15px,1.5vw,19px)] text-grey transition-opacity duration-500 md:block ${i === active ? "opacity-100" : "opacity-0"}`}>
                   {m.line}
                 </p>
               </li>
             ))}
           </ol>
+          <p key={active} className="method-line mt-6 max-w-[38ch] text-[15px] text-grey md:hidden">
+            {method[active].line}
+          </p>
         </div>
       </div>
     </section>

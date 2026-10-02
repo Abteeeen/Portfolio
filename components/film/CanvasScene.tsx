@@ -166,8 +166,9 @@ export function CanvasScene({ mode, className, progressRef, onHover }: Props) {
         back.position.z = -0.06;
         group.add(back);
         const zig = i % 2 ? 1 : -1;
-        group.position.set(zig * (1.1 + rnd() * 1.3), -0.7 + rnd() * 1.9, -i * 1.9);
-        group.rotation.y = zig * -0.35 + (rnd() - 0.5) * 0.2;
+        // a portrait screen is narrow: the cards zigzag close to the centre line so they stay in frame
+        group.position.set(narrow ? zig * (0.25 + rnd() * 0.35) : zig * (1.1 + rnd() * 1.3), narrow ? -0.9 + rnd() * 1.2 : -0.7 + rnd() * 1.9, -i * 1.9);
+        group.rotation.y = zig * (narrow ? -0.18 : -0.35) + (rnd() - 0.5) * 0.2;
         group.rotation.x = (rnd() - 0.5) * 0.15;
         group.scale.setScalar(0.82);
         scene.add(group);
@@ -238,6 +239,7 @@ export function CanvasScene({ mode, className, progressRef, onHover }: Props) {
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, narrow ? 1 : 1.5));
         renderer.setSize(W, H, false);
         cam.aspect = W / H;
+        cam.fov = W < H ? 58 : 38;
         cam.updateProjectionMatrix();
       };
       const ro = new ResizeObserver(resize);
@@ -266,12 +268,12 @@ export function CanvasScene({ mode, className, progressRef, onHover }: Props) {
 
         let z: number;
         if (mode === "hero") z = reduce ? 2.5 : 4.5 - ((e * 0.55) % 24);
-        else z = 4.5 - Math.max(0, Math.min(1, progressRef?.current ?? 0)) * 26;
+        else z = 4.5 - Math.max(0, Math.min(1, progressRef?.current ?? 0)) * (narrow ? 18 : 26);
 
         const cx = (narrow ? 0 : -1.4) + mouse.x * 0.8;
-        const cy = (narrow ? 1.9 : 0.5) + mouse.y * -0.4;
+        const cy = (narrow ? 2.1 : 0.5) + mouse.y * -0.4;
         cam.position.set(cx, cy, z);
-        cam.lookAt(narrow ? 0 : 0.6, narrow ? -0.2 : 0.1, z - 6);
+        cam.lookAt(narrow ? 0 : 0.6, narrow ? -0.5 : 0.1, z - 5.5);
         lamp.position.set(cx, cy + 1.2, z - 1.5);
         dust.position.z = z - 8;
 

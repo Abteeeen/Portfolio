@@ -135,6 +135,8 @@ export function Feed() {
         }
         if (!u.keep) el.classList.toggle("gone", p > 0.62 + i * 0.01);
       });
+      // once the rejects have gone (phones collapse them), the keepers show their lines
+      fd.classList.toggle("compact", p > 0.72);
       const fr = sv.getBoundingClientRect();
       let solved = 0;
       KEEPERS.forEach(({ u, i }, k) => {
@@ -202,6 +204,9 @@ export function Feed() {
                       <i className="fd-sep" aria-hidden="true" />
                       <span className="fd-dom">{u.domain}</span>
                       <span className="fd-date tabular">{u.date}</span>
+                      <span className="fd-stamp" aria-hidden="true">
+                        {u.keep ? "KEEP" : "SKIP"}
+                      </span>
                     </div>
                     <p className="fd-t">{u.t}</p>
                     <p className="fd-desc">{u.line}</p>
@@ -210,9 +215,6 @@ export function Feed() {
                       {u.why}
                     </p>
                   </div>
-                  <span className="fd-stamp" aria-hidden="true">
-                    {u.keep ? "KEEP" : "SKIP"}
-                  </span>
                   <i className="fd-dot" aria-hidden="true" />
                 </article>
               ))}
@@ -220,7 +222,10 @@ export function Feed() {
           </div>
           <div className="fd-col">
             <div className="fd-colh">
-              <span>Client problems</span>
+              <span>
+                <span className="fd-long">Client problems</span>
+                <span className="fd-short">Problems</span>
+              </span>
               <b data-count="solved">0 / {night.problems.length} solved</b>
             </div>
             <div ref={probs} className="fd-list">

@@ -4,10 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { nav, person } from "@/content/site";
 import { ticker } from "@/content/film";
 
-/** The persistent furniture: sigil, nav, sound, ticker, scroll hint, cursor. */
+/** The persistent furniture: sigil, nav (a menu sheet on phones), sound, ticker, scroll hint, cursor. */
 export function Hud() {
   const [sound, setSound] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [menu, setMenu] = useState(false);
   const audio = useRef<{ ctx: AudioContext; master: GainNode } | null>(null);
   const dot = useRef<HTMLDivElement>(null);
 
@@ -16,6 +17,15 @@ export function Hud() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!menu) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenu(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menu]);
 
   useEffect(() => {
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
@@ -105,7 +115,7 @@ export function Hud() {
   return (
     <>
       <div ref={dot} className="cursor-dot" aria-hidden="true" />
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-[70] flex items-center justify-between gap-4 px-5 py-4 sm:px-8">
+      <header className="hud-top pointer-events-none fixed inset-x-0 top-0 z-[70] flex items-center justify-between gap-4 px-5 py-4 sm:px-8">
         <a href="#top" className="mono-label pointer-events-auto flex items-center gap-2 text-ink">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
             <circle cx="5" cy="12" r="2.4" fill="#ffe94d" />
@@ -122,13 +132,51 @@ export function Hud() {
             </a>
           ))}
         </nav>
+        <button
+          type="button"
+          onClick={() => setMenu((m) => !m)}
+          aria-expanded={menu}
+          aria-controls="menu"
+          className="mono-label pointer-events-auto flex items-center gap-2 text-ink md:hidden"
+        >
+          <span className={`hud-burger ${menu ? "x" : ""}`} aria-hidden="true">
+            <i />
+            <i />
+          </span>
+          {menu ? "Close" : "Menu"}
+        </button>
       </header>
+      <div id="menu" className={`hud-menu md:hidden ${menu ? "on" : ""}`} aria-hidden={!menu}>
+        <nav aria-label="Sections" className="flex flex-col">
+          {nav.map((n, i) => (
+            <a key={n.href} href={n.href} onClick={() => setMenu(false)} className="hud-link" tabIndex={menu ? 0 : -1}>
+              <span className="display text-[42px] leading-none text-ink">{n.label}</span>
+              <span className="mono-label text-mark">0{i + 1}</span>
+            </a>
+          ))}
+        </nav>
+        <div className="mt-auto flex flex-col gap-5">
+          <button type="button" onClick={toggleSound} aria-pressed={sound} className="mono-label flex items-center gap-2 text-grey" tabIndex={menu ? 0 : -1}>
+            <span className={`bars ${sound ? "on" : ""}`} aria-hidden="true">
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+            </span>
+            Sound {sound ? "on" : "off"}
+          </button>
+          <a href={`mailto:${person.email}`} className="mono-label text-ink" tabIndex={menu ? 0 : -1}>
+            {person.email}
+          </a>
+        </div>
+      </div>
       <footer className="pointer-events-none fixed inset-x-0 bottom-0 z-[70] flex items-end justify-between gap-4 px-5 py-4 sm:px-8">
         <button
           type="button"
           onClick={toggleSound}
           aria-pressed={sound}
-          className="mono-label pointer-events-auto flex items-center gap-2 text-grey transition-colors hover:text-ink"
+          className="mono-label pointer-events-auto hidden items-center gap-2 text-grey transition-colors hover:text-ink md:flex"
         >
           <span className={`bars ${sound ? "on" : ""}`} aria-hidden="true">
             <i />
@@ -149,7 +197,7 @@ export function Hud() {
             measure · automate · report &nbsp;·&nbsp;
           </div>
         </div>
-        <span className={`mono-label text-grey transition-opacity ${scrolled ? "opacity-0" : "opacity-100"}`} aria-hidden="true">
+        <span className={`mono-label ml-auto text-grey transition-opacity ${scrolled || menu ? "opacity-0" : "opacity-100"}`} aria-hidden="true">
           Scroll ↓
         </span>
       </footer>
