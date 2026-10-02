@@ -29,7 +29,7 @@ export function SystemScreen() {
   }, []);
 
   return (
-    <section id="systems" ref={ref} className="relative h-[300svh]">
+    <section id="systems" ref={ref} className="relative h-[220svh] md:h-[300svh]">
       <div className="sticky top-0 h-[100svh] overflow-hidden">
         <div className="absolute inset-0">
           <CanvasScene mode="system" className="block h-full w-full" progressRef={progress} onHover={(slug, name) => setHover({ slug, name })} />
@@ -38,7 +38,8 @@ export function SystemScreen() {
           <h2 className="display max-w-[16ch] text-[clamp(30px,4.6vw,72px)] text-ink">
             <Kinetic as="span" text={system.line} />
           </h2>
-          <p className="mono-label mt-4 text-grey">{system.hint}</p>
+          <p className="mono-label mt-4 hidden text-grey md:block">{system.hint}</p>
+          <p className="mono-label mt-4 text-grey md:hidden">{system.hintTouch}</p>
         </div>
         <div className="gutter pointer-events-none absolute inset-x-0 bottom-[14%] z-10">
           <div className={`inline-flex flex-col gap-1 border-l-[3px] border-mark pl-3 transition-opacity ${hover.name ? "opacity-100" : "opacity-0"}`} aria-live="polite">
